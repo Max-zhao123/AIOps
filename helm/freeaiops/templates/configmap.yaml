@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "freeaiops.fullname" . }}-config
+  labels:
+    {{- include "freeaiops.labels" . | nindent 4 }}
+data:
+  config.yaml: |
+    domain: {{ .Values.config.domain | quote }}
+
+    admin:
+      enable: {{ .Values.config.admin.enable }}
+      auth: {{ .Values.config.admin.auth }}
+
+    jwt:
+      signing-key: {{ .Values.config.jwt.signingKey | quote }}
+      expires-time: {{ int .Values.config.jwt.expiresTime }}
+      buffer-time: {{ int .Values.config.jwt.bufferTime }}
+      issuer: {{ .Values.config.jwt.issuer | quote }}
+
+    mysql:
+      path: {{ include "freeaiops.mysql.host" . | quote }}
+      port: {{ include "freeaiops.mysql.port" . }}
+      config: 'charset=utf8mb4&parseTime=True&loc=Local'
+      db-name: {{ include "freeaiops.mysql.database" . | quote }}
+      username: {{ include "freeaiops.mysql.username" . | quote }}
+      password: {{ include "freeaiops.mysql.password" . | quote }}
+      prefix: "t_"
+      singular: false
+      engine: ""
+      max-idle-conns: 10
+      max-open-conns: 100
+      log-mode: true
+      log-zap: false
+
+    zap:
+      level: info
+      prefix: '[freeaiops/server]'
+      format: json
+      director: log
+      encode_level: LowercaseColorLevelEncoder
+      stacktrace_key: stacktrace
+      max_age: 0
+      show_line: true
+      log_in_console: true

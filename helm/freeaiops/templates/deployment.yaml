@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "freeaiops.fullname" . }}
+  labels:
+    {{- include "freeaiops.appLabels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "freeaiops.appLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "freeaiops.appLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.mysql.enabled }}
+      initContainers:
+        - name: wait-mysql
+          image: busybox:1.36
+          command:
+            - sh
+            - -c
+            - |
+              until nc -z {{ include "freeaiops.mysql.host" . }} {{ include "freeaiops.mysql.port" . }}; do
+                echo "waiting for mysql..."
+                sleep 3
+              done
+      {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: GIN_MODE
+              value: release
+            - name: EWA_CONFIG
+              value: /app/config/config.yaml
+          livenessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            tcpSocket:
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /app/config/config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "freeaiops.fullname" . }}-config

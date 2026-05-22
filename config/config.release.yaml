@@ -1,0 +1,37 @@
+domain: 'localhost'
+
+admin:
+  enable: true
+  auth: true
+
+jwt:
+  signing-key: 'freeaiops'
+  expires-time: 604800000
+  buffer-time: 86400000
+  issuer: 'freeaiops'
+
+mysql:
+  path: 'freeaiops-mysql'
+  port: '3306'
+  config: 'charset=utf8mb4&parseTime=True&loc=Local'
+  db-name: 'freeaiops'
+  username: 'root'
+  password: '123456'
+  prefix: "t_"
+  singular: false
+  engine: ""
+  max-idle-conns: 10
+  max-open-conns: 100
+  log-mode: true
+  log-zap: false
+
+zap:
+  level: info
+  prefix: '[freeaiops/server]'
+  format: json
+  director: log
+  encode_level: LowercaseColorLevelEncoder
+  stacktrace_key: stacktrace
+  max_age: 0
+  show_line: true
+  log_in_console: true

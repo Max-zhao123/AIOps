@@ -1,0 +1,88 @@
+# 全局
+nameOverride: ""
+fullnameOverride: ""
+
+# 应用镜像（由 buildall.sh 构建）
+image:
+  repository: freeaiops
+  tag: latest
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  type: ClusterIP
+  port: 8080
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  hosts:
+    - host: freeaiops.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+
+# 应用配置
+config:
+  domain: localhost
+  admin:
+    enable: true
+    auth: true
+  jwt:
+    signingKey: freeaiops
+    expiresTime: 604800000
+    bufferTime: 86400000
+    issuer: freeaiops
+
+# 数据库迁移 Job（首次安装时执行）
+migrate:
+  enabled: true
+  backoffLimit: 3
+
+# MySQL 中间件
+mysql:
+  enabled: true
+  image:
+    repository: mysql
+    tag: "8.0"
+    pullPolicy: IfNotPresent
+  auth:
+    rootPassword: "123456"
+    database: freeaiops
+    username: root
+  service:
+    port: 3306
+  persistence:
+    enabled: true
+    size: 8Gi
+    storageClass: ""
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+# 使用外部 MySQL 时设置 mysql.enabled=false 并配置 externalMysql
+externalMysql:
+  host: ""
+  port: "3306"
+  database: freeaiops
+  username: root
+  password: ""
