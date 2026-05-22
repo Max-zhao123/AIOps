@@ -15,6 +15,7 @@ spec:
       labels:
         {{- include "aiops.mysqlLabels" . | nindent 8 }}
     spec:
+      {{- include "aiops.imagePullSecrets" . | nindent 6 }}
       containers:
         - name: mysql
           image: "{{ .Values.mysql.image.repository }}:{{ .Values.mysql.image.tag }}"

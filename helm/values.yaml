@@ -2,6 +2,10 @@
 nameOverride: ""
 fullnameOverride: ""
 
+# 拉取私有镜像（如华为 SWR）所需的 Secret
+imagePullSecrets:
+  - name: default-secret
+
 # 应用镜像（由 buildall.sh 构建）
 image:
   repository: aiops

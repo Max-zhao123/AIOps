@@ -92,3 +92,10 @@ app.kubernetes.io/component: mysql
 {{- .Values.externalMysql.port | quote }}
 {{- end }}
 {{- end }}
+
+{{- define "aiops.imagePullSecrets" -}}
+{{- with .Values.imagePullSecrets }}
+imagePullSecrets:
+  {{- toYaml . | nindent 2 }}
+{{- end }}
+{{- end }}
