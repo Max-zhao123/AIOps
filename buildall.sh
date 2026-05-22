@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# FreeAiOps 镜像构建脚本
+# aiops 镜像构建脚本
 # 用法:
-#   ./buildall.sh                    # 本地构建，标签 freeaiops:latest
+#   ./buildall.sh                    # 本地构建，标签 aiops:latest
 #   REGISTRY=harbor.example.com/proj/ TAG=v1.0.0 ./buildall.sh
 #   PUSH=true REGISTRY=... TAG=... ./buildall.sh   # 构建并推送
 #
@@ -12,12 +12,12 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "${SCRIPT_DIR}"
 
-# 镜像仓库前缀，如 harbor.example.com/freeaiops/ 需以 / 结尾
-REGISTRY="${REGISTRY:-}"
+# 镜像仓库前缀，如 harbor.example.com/aiops/ 需以 / 结尾
+REGISTRY="${REGISTRY:-swr.cn-south-1.myhuaweicloud.com/ops-images/}"
 TAG="${TAG:-latest}"
-IMAGE_NAME="${IMAGE_NAME:-freeaiops}"
+IMAGE_NAME="${IMAGE_NAME:-aiops}"
 PLATFORM="${PLATFORM:-linux/amd64}"
-PUSH="${PUSH:-false}"
+PUSH="${PUSH:-true}"
 
 if [[ -n "${REGISTRY}" && "${REGISTRY}" != */ ]]; then
   REGISTRY="${REGISTRY}/"
@@ -26,7 +26,7 @@ fi
 FULL_IMAGE="${REGISTRY}${IMAGE_NAME}:${TAG}"
 
 echo "=========================================="
-echo " FreeAiOps 镜像构建"
+echo " aiops 镜像构建"
 echo " 镜像: ${FULL_IMAGE}"
 echo " 平台: ${PLATFORM}"
 echo "=========================================="
@@ -58,6 +58,6 @@ fi
 
 echo ""
 echo "Helm 部署示例:"
-echo "  helm upgrade --install freeaiops ./helm/freeaiops \\"
+echo "  helm upgrade --install aiops ./helm/aiops \\"
 echo "    --set image.repository=${REGISTRY}${IMAGE_NAME} \\"
 echo "    --set image.tag=${TAG}"

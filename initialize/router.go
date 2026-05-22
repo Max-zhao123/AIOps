@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lihaiya/freeaiops/config"
-	"github.com/lihaiya/freeaiops/internal/app"
-	"github.com/lihaiya/freeaiops/middleware"
-	"github.com/lihaiya/freeaiops/utils"
+	"github.com/lihaiya/aiops/config"
+	"github.com/lihaiya/aiops/internal/app"
+	"github.com/lihaiya/aiops/middleware"
+	"github.com/lihaiya/aiops/utils"
 )
 
 func HealthCheck(g *gin.Context) {

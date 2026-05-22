@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/lihaiya/freeaiops/config"
+	"github.com/lihaiya/aiops/config"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"

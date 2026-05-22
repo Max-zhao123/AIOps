@@ -1,6 +1,6 @@
 package app
 
-import "github.com/lihaiya/freeaiops/pkg/model"
+import "github.com/lihaiya/aiops/pkg/model"
 
 type App struct {
 	model.BaseModel

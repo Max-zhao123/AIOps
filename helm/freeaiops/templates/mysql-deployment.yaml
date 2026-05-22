@@ -2,18 +2,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "freeaiops.mysql.fullname" . }}
+  name: {{ include "aiops.mysql.fullname" . }}
   labels:
-    {{- include "freeaiops.mysqlLabels" . | nindent 4 }}
+    {{- include "aiops.mysqlLabels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      {{- include "freeaiops.mysqlLabels" . | nindent 6 }}
+      {{- include "aiops.mysqlLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "freeaiops.mysqlLabels" . | nindent 8 }}
+        {{- include "aiops.mysqlLabels" . | nindent 8 }}
     spec:
       containers:
         - name: mysql
@@ -26,12 +26,12 @@ spec:
             - name: MYSQL_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "freeaiops.mysql.fullname" . }}
+                  name: {{ include "aiops.mysql.fullname" . }}
                   key: MYSQL_ROOT_PASSWORD
             - name: MYSQL_DATABASE
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "freeaiops.mysql.fullname" . }}
+                  name: {{ include "aiops.mysql.fullname" . }}
                   key: MYSQL_DATABASE
           args:
             - --character-set-server=utf8mb4
@@ -56,7 +56,7 @@ spec:
         - name: data
           {{- if .Values.mysql.persistence.enabled }}
           persistentVolumeClaim:
-            claimName: {{ include "freeaiops.mysql.fullname" . }}
+            claimName: {{ include "aiops.mysql.fullname" . }}
           {{- else }}
           emptyDir: {}
           {{- end }}

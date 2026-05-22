@@ -1,10 +1,10 @@
-FreeAiOps 已部署到命名空间: {{ .Release.Namespace }}
+aiops 已部署到命名空间: {{ .Release.Namespace }}
 
 1. 查看 Pod 状态:
    kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
 
 2. 本地访问（端口转发）:
-   kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "freeaiops.fullname" . }} 8080:{{ .Values.service.port }}
+   kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "aiops.fullname" . }} 8080:{{ .Values.service.port }}
    浏览器打开: http://127.0.0.1:8080
 
 {{- if .Values.ingress.enabled }}
@@ -16,10 +16,10 @@ FreeAiOps 已部署到命名空间: {{ .Release.Namespace }}
 {{- else }}
 
 3. 集群内访问:
-   http://{{ include "freeaiops.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+   http://{{ include "aiops.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
 {{- end }}
 
 {{- if .Values.mysql.enabled }}
 
-MySQL 服务: {{ include "freeaiops.mysql.fullname" . }}:{{ .Values.mysql.service.port }}
+MySQL 服务: {{ include "aiops.mysql.fullname" . }}:{{ .Values.mysql.service.port }}
 {{- end }}

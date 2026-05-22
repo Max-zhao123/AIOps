@@ -4,10 +4,10 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lihaiya/freeaiops/pkg/model"
-	"github.com/lihaiya/freeaiops/pkg/response"
-	"github.com/lihaiya/freeaiops/pkg/service"
-	"github.com/lihaiya/freeaiops/utils"
+	"github.com/lihaiya/aiops/pkg/model"
+	"github.com/lihaiya/aiops/pkg/response"
+	"github.com/lihaiya/aiops/pkg/service"
+	"github.com/lihaiya/aiops/utils"
 )
 
 type Api interface {

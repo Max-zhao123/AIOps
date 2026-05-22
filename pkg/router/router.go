@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lihaiya/freeaiops/pkg/api"
+	"github.com/lihaiya/aiops/pkg/api"
 )
 
 type DefaultRouter struct {

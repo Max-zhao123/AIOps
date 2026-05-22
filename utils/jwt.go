@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/lihaiya/freeaiops/config"
+	"github.com/lihaiya/aiops/config"
 	"golang.org/x/sync/singleflight"
 )
 

@@ -1,6 +1,6 @@
 package model
 
-import "github.com/lihaiya/freeaiops/utils"
+import "github.com/lihaiya/aiops/utils"
 
 type Page interface {
 	SetTotal(total int64)

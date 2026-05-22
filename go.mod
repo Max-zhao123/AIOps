@@ -1,4 +1,4 @@
-module github.com/lihaiya/freeaiops
+module github.com/lihaiya/aiops
 
 go 1.18
 

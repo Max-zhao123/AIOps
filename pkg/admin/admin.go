@@ -5,12 +5,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/gphper/multitemplate"
-	"github.com/lihaiya/freeaiops/config"
-	"github.com/lihaiya/freeaiops/pkg/auth"
-	"github.com/lihaiya/freeaiops/pkg/model"
-	"github.com/lihaiya/freeaiops/pkg/service"
-	"github.com/lihaiya/freeaiops/templates"
-	"github.com/lihaiya/freeaiops/utils"
+	"github.com/lihaiya/aiops/config"
+	"github.com/lihaiya/aiops/pkg/auth"
+	"github.com/lihaiya/aiops/pkg/model"
+	"github.com/lihaiya/aiops/pkg/service"
+	"github.com/lihaiya/aiops/templates"
+	"github.com/lihaiya/aiops/utils"
 )
 
 type Admin interface {

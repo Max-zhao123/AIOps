@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "freeaiops.mysql.fullname" . }}
+  name: {{ include "aiops.mysql.fullname" . }}
   labels:
-    {{- include "freeaiops.mysqlLabels" . | nindent 4 }}
+    {{- include "aiops.mysqlLabels" . | nindent 4 }}
 spec:
   type: ClusterIP
   ports:
@@ -13,5 +13,5 @@ spec:
       protocol: TCP
       name: mysql
   selector:
-    {{- include "freeaiops.mysqlLabels" . | nindent 4 }}
+    {{- include "aiops.mysqlLabels" . | nindent 4 }}
 {{- end }}

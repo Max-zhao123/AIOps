@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/lihaiya/freeaiops/utils"
+	"github.com/lihaiya/aiops/utils"
 )
 
 type Model interface {

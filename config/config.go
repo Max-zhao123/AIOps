@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/lihaiya/freeaiops/config/autoload"
+	"github.com/lihaiya/aiops/config/autoload"
 	"github.com/robfig/cron/v3"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"

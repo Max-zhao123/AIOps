@@ -7,8 +7,8 @@ import (
 	"time"
 
 	rotatelogs "github.com/lestrrat-go/file-rotatelogs"
-	"github.com/lihaiya/freeaiops/config"
-	"github.com/lihaiya/freeaiops/utils"
+	"github.com/lihaiya/aiops/config"
+	"github.com/lihaiya/aiops/utils"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )

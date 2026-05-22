@@ -2,7 +2,7 @@ package admin
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lihaiya/freeaiops/pkg/auth"
+	"github.com/lihaiya/aiops/pkg/auth"
 )
 
 var (

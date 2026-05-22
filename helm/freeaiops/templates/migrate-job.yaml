@@ -2,9 +2,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "freeaiops.fullname" . }}-migrate
+  name: {{ include "aiops.fullname" . }}-migrate
   labels:
-    {{- include "freeaiops.labels" . | nindent 4 }}
+    {{- include "aiops.labels" . | nindent 4 }}
     app.kubernetes.io/component: migrate
   annotations:
     helm.sh/hook: post-install,post-upgrade
@@ -26,7 +26,7 @@ spec:
             - sh
             - -c
             - |
-              until nc -z {{ include "freeaiops.mysql.host" . }} {{ include "freeaiops.mysql.port" . }}; do
+              until nc -z {{ include "aiops.mysql.host" . }} {{ include "aiops.mysql.port" . }}; do
                 echo "waiting for mysql..."
                 sleep 3
               done
@@ -46,5 +46,5 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ include "freeaiops.fullname" . }}-config
+            name: {{ include "aiops.fullname" . }}-config
 {{- end }}

@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "freeaiops.fullname" . }}
+  name: {{ include "aiops.fullname" . }}
   labels:
-    {{- include "freeaiops.appLabels" . | nindent 4 }}
+    {{- include "aiops.appLabels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      {{- include "freeaiops.appLabels" . | nindent 6 }}
+      {{- include "aiops.appLabels" . | nindent 6 }}
   template:
     metadata:
       labels:
-        {{- include "freeaiops.appLabels" . | nindent 8 }}
+        {{- include "aiops.appLabels" . | nindent 8 }}
     spec:
       {{- if .Values.mysql.enabled }}
       initContainers:
@@ -22,7 +22,7 @@ spec:
             - sh
             - -c
             - |
-              until nc -z {{ include "freeaiops.mysql.host" . }} {{ include "freeaiops.mysql.port" . }}; do
+              until nc -z {{ include "aiops.mysql.host" . }} {{ include "aiops.mysql.port" . }}; do
                 echo "waiting for mysql..."
                 sleep 3
               done
@@ -59,4 +59,4 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: {{ include "freeaiops.fullname" . }}-config
+            name: {{ include "aiops.fullname" . }}-config

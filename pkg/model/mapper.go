@@ -1,8 +1,8 @@
 package model
 
 import (
-	"github.com/lihaiya/freeaiops/config"
-	"github.com/lihaiya/freeaiops/utils"
+	"github.com/lihaiya/aiops/config"
+	"github.com/lihaiya/aiops/utils"
 	"gorm.io/gorm"
 )
 

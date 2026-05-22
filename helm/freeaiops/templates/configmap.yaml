@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ include "freeaiops.fullname" . }}-config
+  name: {{ include "aiops.fullname" . }}-config
   labels:
-    {{- include "freeaiops.labels" . | nindent 4 }}
+    {{- include "aiops.labels" . | nindent 4 }}
 data:
   config.yaml: |
     domain: {{ .Values.config.domain | quote }}
@@ -19,12 +19,12 @@ data:
       issuer: {{ .Values.config.jwt.issuer | quote }}
 
     mysql:
-      path: {{ include "freeaiops.mysql.host" . | quote }}
-      port: {{ include "freeaiops.mysql.port" . }}
+      path: {{ include "aiops.mysql.host" . | quote }}
+      port: {{ include "aiops.mysql.port" . }}
       config: 'charset=utf8mb4&parseTime=True&loc=Local'
-      db-name: {{ include "freeaiops.mysql.database" . | quote }}
-      username: {{ include "freeaiops.mysql.username" . | quote }}
-      password: {{ include "freeaiops.mysql.password" . | quote }}
+      db-name: {{ include "aiops.mysql.database" . | quote }}
+      username: {{ include "aiops.mysql.username" . | quote }}
+      password: {{ include "aiops.mysql.password" . | quote }}
       prefix: "t_"
       singular: false
       engine: ""
@@ -35,7 +35,7 @@ data:
 
     zap:
       level: info
-      prefix: '[freeaiops/server]'
+      prefix: '[aiops/server]'
       format: json
       director: log
       encode_level: LowercaseColorLevelEncoder

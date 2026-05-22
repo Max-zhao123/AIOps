@@ -2,9 +2,9 @@ package initialize
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lihaiya/freeaiops/config"
-	"github.com/lihaiya/freeaiops/internal/app"
-	"github.com/lihaiya/freeaiops/pkg/admin"
+	"github.com/lihaiya/aiops/config"
+	"github.com/lihaiya/aiops/internal/app"
+	"github.com/lihaiya/aiops/pkg/admin"
 )
 
 func Admin(r *gin.Engine) {

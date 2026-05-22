@@ -2,7 +2,7 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lihaiya/freeaiops/pkg/router"
+	"github.com/lihaiya/aiops/pkg/router"
 )
 
 func InitRouter(g *gin.RouterGroup) {

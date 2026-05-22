@@ -10,7 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-openapi/spec"
-	"github.com/lihaiya/freeaiops/pkg/api"
+	"github.com/lihaiya/aiops/pkg/api"
 )
 
 var swagger Swagger

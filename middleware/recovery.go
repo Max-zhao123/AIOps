@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/lihaiya/freeaiops/config"
-	"github.com/lihaiya/freeaiops/pkg/response"
-	"github.com/lihaiya/freeaiops/utils"
+	"github.com/lihaiya/aiops/config"
+	"github.com/lihaiya/aiops/pkg/response"
+	"github.com/lihaiya/aiops/utils"
 )
 
 func Recovery() gin.HandlerFunc {

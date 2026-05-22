@@ -5,16 +5,16 @@ admin:
   auth: true
 
 jwt:
-  signing-key: 'freeaiops'
+  signing-key: 'aiops'
   expires-time: 604800000
   buffer-time: 86400000
-  issuer: 'freeaiops'
+  issuer: 'aiops'
 
 mysql:
-  path: 'freeaiops-mysql'
+  path: 'aiops-mysql'
   port: '3306'
   config: 'charset=utf8mb4&parseTime=True&loc=Local'
-  db-name: 'freeaiops'
+  db-name: 'aiops'
   username: 'root'
   password: '123456'
   prefix: "t_"
@@ -27,7 +27,7 @@ mysql:
 
 zap:
   level: info
-  prefix: '[freeaiops/server]'
+  prefix: '[aiops/server]'
   format: json
   director: log
   encode_level: LowercaseColorLevelEncoder

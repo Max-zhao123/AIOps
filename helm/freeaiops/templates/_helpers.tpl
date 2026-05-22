@@ -1,14 +1,14 @@
 {{/*
 Expand the name of the chart.
 */}}
-{{- define "freeaiops.name" -}}
+{{- define "aiops.name" -}}
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
 {{/*
 Create a default fully qualified app name.
 */}}
-{{- define "freeaiops.fullname" -}}
+{{- define "aiops.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
 {{- else }}
@@ -21,47 +21,47 @@ Create a default fully qualified app name.
 {{- end }}
 {{- end }}
 
-{{- define "freeaiops.chart" -}}
+{{- define "aiops.chart" -}}
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{- define "freeaiops.labels" -}}
-helm.sh/chart: {{ include "freeaiops.chart" . }}
-{{ include "freeaiops.selectorLabels" . }}
+{{- define "aiops.labels" -}}
+helm.sh/chart: {{ include "aiops.chart" . }}
+{{ include "aiops.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
 app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- end }}
 
-{{- define "freeaiops.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "freeaiops.name" . }}
+{{- define "aiops.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "aiops.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
-{{- define "freeaiops.appLabels" -}}
-{{ include "freeaiops.selectorLabels" . }}
+{{- define "aiops.appLabels" -}}
+{{ include "aiops.selectorLabels" . }}
 app.kubernetes.io/component: app
 {{- end }}
 
-{{- define "freeaiops.mysqlLabels" -}}
-{{ include "freeaiops.selectorLabels" . }}
+{{- define "aiops.mysqlLabels" -}}
+{{ include "aiops.selectorLabels" . }}
 app.kubernetes.io/component: mysql
 {{- end }}
 
-{{- define "freeaiops.mysql.fullname" -}}
-{{- printf "%s-mysql" (include "freeaiops.fullname" .) }}
+{{- define "aiops.mysql.fullname" -}}
+{{- printf "%s-mysql" (include "aiops.fullname" .) }}
 {{- end }}
 
-{{- define "freeaiops.mysql.host" -}}
+{{- define "aiops.mysql.host" -}}
 {{- if .Values.mysql.enabled }}
-{{- include "freeaiops.mysql.fullname" . }}
+{{- include "aiops.mysql.fullname" . }}
 {{- else }}
 {{- required "externalMysql.host is required when mysql.enabled=false" .Values.externalMysql.host }}
 {{- end }}
 {{- end }}
 
-{{- define "freeaiops.mysql.password" -}}
+{{- define "aiops.mysql.password" -}}
 {{- if .Values.mysql.enabled }}
 {{- .Values.mysql.auth.rootPassword }}
 {{- else }}
@@ -69,7 +69,7 @@ app.kubernetes.io/component: mysql
 {{- end }}
 {{- end }}
 
-{{- define "freeaiops.mysql.username" -}}
+{{- define "aiops.mysql.username" -}}
 {{- if .Values.mysql.enabled }}
 {{- .Values.mysql.auth.username }}
 {{- else }}
@@ -77,7 +77,7 @@ app.kubernetes.io/component: mysql
 {{- end }}
 {{- end }}
 
-{{- define "freeaiops.mysql.database" -}}
+{{- define "aiops.mysql.database" -}}
 {{- if .Values.mysql.enabled }}
 {{- .Values.mysql.auth.database }}
 {{- else }}
@@ -85,7 +85,7 @@ app.kubernetes.io/component: mysql
 {{- end }}
 {{- end }}
 
-{{- define "freeaiops.mysql.port" -}}
+{{- define "aiops.mysql.port" -}}
 {{- if .Values.mysql.enabled }}
 {{- .Values.mysql.service.port | quote }}
 {{- else }}

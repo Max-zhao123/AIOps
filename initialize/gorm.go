@@ -3,9 +3,9 @@ package initialize
 import (
 	"os"
 
-	"github.com/lihaiya/freeaiops/config"
-	"github.com/lihaiya/freeaiops/internal/app"
-	"github.com/lihaiya/freeaiops/pkg/auth"
+	"github.com/lihaiya/aiops/config"
+	"github.com/lihaiya/aiops/internal/app"
+	"github.com/lihaiya/aiops/pkg/auth"
 	"gorm.io/gorm"
 )
 

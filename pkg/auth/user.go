@@ -4,10 +4,10 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/lihaiya/freeaiops/config"
-	"github.com/lihaiya/freeaiops/pkg/model"
-	"github.com/lihaiya/freeaiops/pkg/response"
-	"github.com/lihaiya/freeaiops/utils"
+	"github.com/lihaiya/aiops/config"
+	"github.com/lihaiya/aiops/pkg/model"
+	"github.com/lihaiya/aiops/pkg/response"
+	"github.com/lihaiya/aiops/utils"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 )

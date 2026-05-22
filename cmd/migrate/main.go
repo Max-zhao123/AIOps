@@ -1,8 +1,8 @@
 package main
 
 import (
-	"github.com/lihaiya/freeaiops/config"
-	"github.com/lihaiya/freeaiops/initialize"
+	"github.com/lihaiya/aiops/config"
+	"github.com/lihaiya/aiops/initialize"
 )
 
 func main() {

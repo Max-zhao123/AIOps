@@ -1,11 +1,11 @@
 apiVersion: v2
-name: freeaiops
-description: FreeAiOps 智能运维平台 Helm Chart（应用 + MySQL）
+name: aiops
+description: aiops 智能运维平台 Helm Chart（应用 + MySQL）
 type: application
 version: 0.1.0
 appVersion: "1.0.0"
 keywords:
   - aiops
-  - freeaiops
+  - aiops
 maintainers:
-  - name: FreeAiOps
+  - name: aiops

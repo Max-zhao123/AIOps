@@ -1,7 +1,7 @@
 package app
 
 import (
-	"github.com/lihaiya/freeaiops/pkg/admin"
+	"github.com/lihaiya/aiops/pkg/admin"
 )
 
 func Admin() {

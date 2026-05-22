@@ -2,8 +2,8 @@ package app
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/lihaiya/freeaiops/pkg/api"
-	"github.com/lihaiya/freeaiops/pkg/response"
+	"github.com/lihaiya/aiops/pkg/api"
+	"github.com/lihaiya/aiops/pkg/response"
 )
 
 type Api struct {

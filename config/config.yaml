@@ -5,16 +5,16 @@ admin:
   auth: true
 
 jwt:
-  signing-key: 'freeaiops'
+  signing-key: 'aiops'
   expires-time: 604800000
   buffer-time: 86400000
-  issuer: 'freeaiops'
+  issuer: 'aiops'
 
 mysql:
   path: 'db'
   port: '3306'
   config: 'charset=utf8mb4&parseTime=True&loc=Local'
-  db-name: 'freeaiops'
+  db-name: 'aiops'
   username: 'root'
   password: '123456'
   prefix: "t_" # 全局表前缀，单独定义 TableName 则不生效

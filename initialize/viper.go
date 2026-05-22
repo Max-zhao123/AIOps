@@ -7,7 +7,7 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/gin-gonic/gin"
-	"github.com/lihaiya/freeaiops/config"
+	"github.com/lihaiya/aiops/config"
 	"github.com/spf13/viper"
 )
 

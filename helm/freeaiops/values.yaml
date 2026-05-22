@@ -4,9 +4,9 @@ fullnameOverride: ""
 
 # 应用镜像（由 buildall.sh 构建）
 image:
-  repository: freeaiops
+  repository: aiops
   tag: latest
-  pullPolicy: IfNotPresent
+  pullPolicy: Always
 
 replicaCount: 1
 
@@ -15,15 +15,18 @@ service:
   port: 8080
 
 ingress:
-  enabled: false
-  className: ""
+  enabled: true
+  className: "nginx"
   annotations: {}
   hosts:
-    - host: freeaiops.local
+    - host: aiops.tclpv.com
       paths:
         - path: /
           pathType: Prefix
-  tls: []
+  tls:
+    - hosts:
+        - aiops.tclpv.com
+      secretName: tclpv.com
 
 resources:
   limits:
@@ -44,10 +47,10 @@ config:
     enable: true
     auth: true
   jwt:
-    signingKey: freeaiops
+    signingKey: aiops
     expiresTime: 604800000
     bufferTime: 86400000
-    issuer: freeaiops
+    issuer: aiops
 
 # 数据库迁移 Job（首次安装时执行）
 migrate:
@@ -62,8 +65,8 @@ mysql:
     tag: "8.0"
     pullPolicy: IfNotPresent
   auth:
-    rootPassword: "123456"
-    database: freeaiops
+    rootPassword: "YfZqL98*901"
+    database: aiops
     username: root
   service:
     port: 3306
@@ -83,6 +86,6 @@ mysql:
 externalMysql:
   host: ""
   port: "3306"
-  database: freeaiops
+  database: aiops
   username: root
   password: ""

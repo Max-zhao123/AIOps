@@ -6,8 +6,8 @@ import (
 
 	"github.com/fvbock/endless"
 	"github.com/gin-gonic/gin"
-	"github.com/lihaiya/freeaiops/config"
-	"github.com/lihaiya/freeaiops/initialize"
+	"github.com/lihaiya/aiops/config"
+	"github.com/lihaiya/aiops/initialize"
 	"go.uber.org/zap"
 )
 

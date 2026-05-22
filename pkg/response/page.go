@@ -1,6 +1,6 @@
 package response
 
-import "github.com/lihaiya/freeaiops/pkg/model"
+import "github.com/lihaiya/aiops/pkg/model"
 
 type Page struct {
 	Total   int64 `json:"total"`

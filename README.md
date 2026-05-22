@@ -1,9 +1,9 @@
-# FreeAiOps - 智能运维 自动化运维
-智能运维、自动化运维、大模型运维、aiops、Zabbix、Prometheus、Grafana、Nagios、ELK Stack（Elasticsearch、Logstash、Kibana）、Graylog、Ansible、SaltStack、Puppet、Chef、Terraform、Docker、Kubernetes、OpenShift、Jenkins、MySQL、PostgreSQL、MariaDB、Redis、MongoDB、InfluxDB、Ceph、MinIO，RabbitMQ、Kafka、NATS、Apache Pulsar、Nginx、Apache HTTP Server、HAProxy、Traefik、Caddy、OpenStack、OpenLDAP、FreeRDP，🚀 **FreeAiOps** 是一个基于大模型的智能运维（AIOps）开源项目，旨在通过人工智能技术革新传统运维模式，实现自动化、智能化的运维管理，工具涵盖了IT运维中的监控、日志、自动化、容器化、安全、网络等多个领域，欢迎一起探讨，沉淀更多场景，促进运维to运营，为IT运维找到新出路!!!!!!!
+# aiops - 智能运维 自动化运维
+智能运维、自动化运维、大模型运维、aiops、Zabbix、Prometheus、Grafana、Nagios、ELK Stack（Elasticsearch、Logstash、Kibana）、Graylog、Ansible、SaltStack、Puppet、Chef、Terraform、Docker、Kubernetes、OpenShift、Jenkins、MySQL、PostgreSQL、MariaDB、Redis、MongoDB、InfluxDB、Ceph、MinIO，RabbitMQ、Kafka、NATS、Apache Pulsar、Nginx、Apache HTTP Server、HAProxy、Traefik、Caddy、OpenStack、OpenLDAP、FreeRDP，🚀 **aiops** 是一个基于大模型的智能运维（AIOps）开源项目，旨在通过人工智能技术革新传统运维模式，实现自动化、智能化的运维管理，工具涵盖了IT运维中的监控、日志、自动化、容器化、安全、网络等多个领域，欢迎一起探讨，沉淀更多场景，促进运维to运营，为IT运维找到新出路!!!!!!!
 
 ## 🌟 项目愿景  
 
-FreeAiOps 致力于构建一个 **开放、高效、易用** 的 AIOps 平台，利用大模型（LLM）技术赋能运维行业，帮助企业和开发者：  
+aiops 致力于构建一个 **开放、高效、易用** 的 AIOps 平台，利用大模型（LLM）技术赋能运维行业，帮助企业和开发者：  
 ✔ **自动化运维** - 减少人工干预，提升运维效率
 ✔ **智能故障预测** - 提前发现潜在问题，降低业务风险  
 ✔ **根因分析（RCA）** - 快速定位问题根源，缩短故障恢复时间  
@@ -38,8 +38,8 @@ FreeAiOps 致力于构建一个 **开放、高效、易用** 的 AIOps 平台，
 
 ```bash
 # 克隆项目
-git clone https://github.com/FreeAiOps/FreeAiOps.git
-cd FreeAiOps
+git clone https://github.com/aiops/aiops.git
+cd aiops
 
 # 启动服务（示例）
 docker-compose up -d
@@ -49,14 +49,14 @@ docker-compose up -d
 
 ## 🤝 参与贡献  
 
-FreeAiOps 是一个 **开源项目**，欢迎所有开发者、运维工程师和 AI 爱好者加入！  
+aiops 是一个 **开源项目**，欢迎所有开发者、运维工程师和 AI 爱好者加入！  
 - 提交 Issue：报告 Bug 或提出新功能建议  
 - 提交 PR：修复问题或贡献代码  
 - 完善文档：帮助改进使用指南  
 
 ## 📜 开源协议  
 
-FreeAiOps 采用 **Apache License 2.0**，可自由用于商业和个人项目。  
+aiops 采用 **Apache License 2.0**，可自由用于商业和个人项目。  
 
 ## 📞 联系我们  
 
