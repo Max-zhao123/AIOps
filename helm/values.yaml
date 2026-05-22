@@ -61,9 +61,10 @@ migrate:
   enabled: true
   backoffLimit: 3
 
-# MySQL 中间件
+# MySQL 中间件（副本固定为 1，勿与 replicaCount 混淆）
 mysql:
   enabled: true
+  replicaCount: 1
   image:
     repository: mysql
     tag: "8.0"

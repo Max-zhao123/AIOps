@@ -6,7 +6,10 @@ metadata:
   labels:
     {{- include "aiops.mysqlLabels" . | nindent 4 }}
 spec:
-  replicas: 1
+  replicas: {{ .Values.mysql.replicaCount }}
+  # 使用 RWO PVC 时必须 Recreate，否则滚动更新会短暂出现 2 个 Pod 且新 Pod 无法挂载卷
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       {{- include "aiops.mysqlLabels" . | nindent 6 }}
