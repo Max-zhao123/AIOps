@@ -1,0 +1,40 @@
+---
+description: 运维跳板机与 AIOps 集群访问信息
+alwaysApply: true
+---
+
+# 运维跳板机（ops-ssh）
+
+| 项 | 值 |
+|----|-----|
+| 主机 | `10.51.6.240` |
+| 端口 | `22` |
+| 用户 | `root` |
+| 密钥 | `/Users/zhao/Documents/密钥/ops-private.pem` |
+
+SSH 示例：
+
+```bash
+ssh -i "/Users/zhao/Documents/密钥/ops-private.pem" -o StrictHostKeyChecking=no root@10.51.6.240
+```
+
+# Kubernetes（跳板机上）
+
+- Kubeconfig：`/root/.kube/gf-ops.config`
+- 项目目录：`/root/max/aiops`
+- AIOps 命名空间：`aiops`
+- Ingress：`https://aiops.tclpv.com`
+- 管理后台登录：`/admin/login/`（无根路径 `/`）
+
+```bash
+export KUBECONFIG=/root/.kube/gf-ops.config
+kubectl get pods -n aiops
+```
+
+# AIOps 测试账号（业务后台，非 MySQL）
+
+| 用户名 | 密码 |
+|--------|------|
+| `admin` | `admin@123` |
+
+MySQL root 密码见 `helm/values.yaml` 中 `mysql.auth.rootPassword`，与后台登录无关。

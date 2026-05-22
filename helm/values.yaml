@@ -46,7 +46,7 @@ affinity: {}
 
 # 应用配置
 config:
-  domain: localhost
+  domain: aiops.tclpv.com
   admin:
     enable: true
     auth: true

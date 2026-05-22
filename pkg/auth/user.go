@@ -86,7 +86,8 @@ func (b BaseUser) tokenNext(c *gin.Context, user BaseUser) error {
 		response.FailWithMessage("获取token失败", c)
 		return err
 	}
-	c.SetCookie("token", token, 3600, "/", config.GVA_CONFIG.Domain, false, true)
-	c.Redirect(http.StatusFound, "/admin")
+	// Domain 留空表示当前访问域名，避免 ConfigMap 为 localhost 时 Ingress 域名收不到 Cookie
+	c.SetCookie("token", token, 3600, "/", "", false, true)
+	c.Redirect(http.StatusFound, "/admin/")
 	return nil
 }
