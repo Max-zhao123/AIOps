@@ -20,6 +20,11 @@ PLATFORM="${PLATFORM:-linux/amd64}"
 PUSH="${PUSH:-true}"
 # Alpine apk 源，国内/华为云构建建议用华为或阿里云镜像
 APK_MIRROR="${APK_MIRROR:-https://mirrors.huaweicloud.com/alpine}"
+# Go 模块代理，避免走 proxy.golang.org（可改为公司内网 GOPROXY）
+GOPROXY="${GOPROXY:-https://goproxy.cn,direct}"
+GOSUMDB="${GOSUMDB:-sum.golang.google.cn}"
+# 必须开启 BuildKit，才能使用 go mod / go build 层缓存
+export DOCKER_BUILDKIT=1
 
 if [[ -n "${REGISTRY}" && "${REGISTRY}" != */ ]]; then
   REGISTRY="${REGISTRY}/"
@@ -32,6 +37,8 @@ echo " aiops 镜像构建"
 echo " 镜像: ${FULL_IMAGE}"
 echo " 平台: ${PLATFORM}"
 echo " APK源: ${APK_MIRROR}"
+echo " GOPROXY: ${GOPROXY}"
+echo " BuildKit: ${DOCKER_BUILDKIT}"
 echo "=========================================="
 
 if ! command -v docker &>/dev/null; then
@@ -43,6 +50,8 @@ echo "[1/2] 构建应用镜像..."
 docker build \
   --platform "${PLATFORM}" \
   --build-arg APK_MIRROR="${APK_MIRROR}" \
+  --build-arg GOPROXY="${GOPROXY}" \
+  --build-arg GOSUMDB="${GOSUMDB}" \
   -f Dockerfile \
   -t "${FULL_IMAGE}" \
   .
