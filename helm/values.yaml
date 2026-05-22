@@ -8,7 +8,7 @@ imagePullSecrets:
 
 # 应用镜像（由 buildall.sh 构建）
 image:
-  repository: aiops
+  repository: swr.cn-south-1.myhuaweicloud.com/ops-images/aiops
   tag: latest
   pullPolicy: Always
 
