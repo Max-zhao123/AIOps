@@ -1,4 +1,4 @@
-{{- if and .Values.mysql.enabled .Values.mysql.persistence.enabled }}
+{{- if and .Values.mysql.enabled .Values.mysql.persistence.enabled .Values.mysql.persistence.createPVC }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:

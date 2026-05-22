@@ -76,6 +76,9 @@ mysql:
     port: 3306
   persistence:
     enabled: true
+    # false：不创建 PVC，请自行创建后填写 existingClaim
+    createPVC: false
+    existingClaim: aiops-mysql
     size: 8Gi
     storageClass: ""
   resources:

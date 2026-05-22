@@ -93,6 +93,14 @@ app.kubernetes.io/component: mysql
 {{- end }}
 {{- end }}
 
+{{- define "aiops.mysql.pvcName" -}}
+{{- if .Values.mysql.persistence.existingClaim }}
+{{- .Values.mysql.persistence.existingClaim }}
+{{- else }}
+{{- include "aiops.mysql.fullname" . }}
+{{- end }}
+{{- end }}
+
 {{- define "aiops.imagePullSecrets" -}}
 {{- with .Values.imagePullSecrets }}
 imagePullSecrets:
