@@ -2,7 +2,12 @@
 
 FROM golang:1.21-alpine AS builder
 
-RUN apk add --no-cache git ca-certificates tzdata
+# 国内/内网构建建议指定镜像源，例如:
+#   docker build --build-arg APK_MIRROR=https://mirrors.aliyun.com/alpine .
+#   docker build --build-arg APK_MIRROR=https://mirrors.huaweicloud.com/alpine .
+ARG APK_MIRROR=https://mirrors.aliyun.com/alpine
+RUN sed -i "s|https://dl-cdn.alpinelinux.org/alpine|${APK_MIRROR}|g" /etc/apk/repositories && \
+    apk add --no-cache git ca-certificates tzdata
 
 WORKDIR /build
 
@@ -16,10 +21,13 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o /build/bi
 
 FROM alpine:3.19
 
-RUN apk add --no-cache ca-certificates tzdata && \
-    cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
+# 运行时不再 apk install，避免 stage-1 访问国外 CDN 失败
+COPY --from=builder /etc/ssl/certs/ /etc/ssl/certs/
+COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /usr/share/zoneinfo/Asia/Shanghai
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime && \
     echo "Asia/Shanghai" > /etc/timezone
 
+ENV TZ=Asia/Shanghai
 WORKDIR /app
 
 COPY --from=builder /build/bin/aiops /build/bin/migrate ./

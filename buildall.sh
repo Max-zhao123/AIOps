@@ -18,6 +18,8 @@ TAG="${TAG:-latest}"
 IMAGE_NAME="${IMAGE_NAME:-aiops}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 PUSH="${PUSH:-true}"
+# Alpine apk 源，国内/华为云构建建议用华为或阿里云镜像
+APK_MIRROR="${APK_MIRROR:-https://mirrors.huaweicloud.com/alpine}"
 
 if [[ -n "${REGISTRY}" && "${REGISTRY}" != */ ]]; then
   REGISTRY="${REGISTRY}/"
@@ -29,6 +31,7 @@ echo "=========================================="
 echo " aiops 镜像构建"
 echo " 镜像: ${FULL_IMAGE}"
 echo " 平台: ${PLATFORM}"
+echo " APK源: ${APK_MIRROR}"
 echo "=========================================="
 
 if ! command -v docker &>/dev/null; then
@@ -39,6 +42,7 @@ fi
 echo "[1/2] 构建应用镜像..."
 docker build \
   --platform "${PLATFORM}" \
+  --build-arg APK_MIRROR="${APK_MIRROR}" \
   -f Dockerfile \
   -t "${FULL_IMAGE}" \
   .
