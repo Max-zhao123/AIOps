@@ -1,0 +1,44 @@
+---
+description: 全部产品需求（30 REQ）代码写完后再联调；开发阶段禁止 Dockerfile/Helm
+alwaysApply: true
+---
+
+# 开发节奏：全部产品需求写完 → 再联调
+
+## 原则
+
+实现范围 = [DEVELOPMENT_PLAN.md](../docs/DEVELOPMENT_PLAN.md) 中 **阶段 A+B+C+D 全部 30 条 REQ**（不是只做 MVP，也不是做完一条就部署）。
+
+**先在本机把 30 条 REQ 的代码全部写完并 `go build`/`go test` 通过，再进入联调**（Dockerfile、buildall、Helm、跳板机、逐条集群验收）。
+
+## 两阶段
+
+| 阶段 | 条件 | 工作 |
+|------|------|------|
+| **开发** | 文首 `当前阶段`=开发 | 按 DEVELOPMENT_PLAN **全局顺序**实现 30 条；更新表中 `代码`/`状态`/`备注` |
+| **联调** | 文首 `当前阶段`=**开发完成，待联调** | 改部署文件；build/helm/kubectl；按表 **验收** 列逐条勾 |
+
+## 禁止
+
+- 开发阶段改 Dockerfile、`buildall.sh`、`helm/`
+- 开发阶段跳板机构建/部署
+- 只完成阶段 A 或单条 REQ 就开始联调（除非用户明确缩小范围）
+- 用 stub/占位标 `代码=完成`（须符合 DEVELOPMENT_PLAN 实现要点）
+
+## 开发阶段出口
+
+- [ ] 30 条 REQ 的 `代码` 列均为 **完成**
+- [ ] `go build ./cmd/...` 通过
+- [ ] DEVELOPMENT_PLAN 文首 → **开发完成，待联调**
+
+## 进度
+
+- `done`：**仅联调验收通过后** 填写
+- 开发中可以 `in_progress` + `代码=部分/完成`
+
+## 阅读顺序
+
+1. [DEVELOPMENT_PLAN.md](../docs/DEVELOPMENT_PLAN.md) 全文 + 当前 `in_progress` 行
+2. [PRD.md](../docs/PRD.md) §0、§3 契约
+3. [ARCHITECTURE.md](../docs/ARCHITECTURE.md)
+4. [BASTION-DEV.md](../docs/BASTION-DEV.md) — **仅联调阶段**

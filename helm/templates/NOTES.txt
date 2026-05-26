@@ -1,25 +1,20 @@
 aiops 已部署到命名空间: {{ .Release.Namespace }}
 
-1. 查看 Pod 状态:
-   kubectl get pods -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+1. 查看 Pod:
+   kubectl get deploy,pods -n {{ .Release.Namespace }} | grep aiops-
 
-2. 本地访问（端口转发）:
-   kubectl port-forward -n {{ .Release.Namespace }} svc/{{ include "aiops.fullname" . }} 8080:{{ .Values.service.port }}
-   浏览器打开: http://127.0.0.1:8080
+2. Gateway 端口转发:
+   kubectl port-forward -n {{ .Release.Namespace }} svc/{{ .Values.microservices.gateway.name }} 8080:{{ .Values.microservices.gateway.port }}
+   curl http://127.0.0.1:8080/healthz
 
 {{- if .Values.ingress.enabled }}
 
-3. Ingress 访问:
+3. Ingress:
 {{- range .Values.ingress.hosts }}
    http{{ if $.Values.ingress.tls }}s{{ end }}://{{ .host }}
 {{- end }}
-{{- else }}
-
-3. 集群内访问:
-   http://{{ include "aiops.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
 {{- end }}
 
 {{- if .Values.mysql.enabled }}
-
-MySQL 服务: {{ include "aiops.mysql.fullname" . }}:{{ .Values.mysql.service.port }}
+MySQL: {{ include "aiops.mysql.fullname" . }}:{{ .Values.mysql.service.port }}
 {{- end }}

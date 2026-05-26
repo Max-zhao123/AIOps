@@ -2,21 +2,13 @@
 nameOverride: ""
 fullnameOverride: ""
 
-# 拉取私有镜像（如华为 SWR）所需的 Secret
 imagePullSecrets:
   - name: default-secret
 
-# 应用镜像（由 buildall.sh 构建）
-image:
-  repository: swr.cn-south-1.myhuaweicloud.com/ops-images/aiops
-  tag: latest
-  pullPolicy: Always
-
-replicaCount: 1
-
-service:
-  type: ClusterIP
-  port: 8080
+# 镜像仓库前缀（buildall.sh REGISTRY 需一致）
+imageRegistry: swr.cn-south-1.myhuaweicloud.com/ops-images/
+imageTag: latest
+imagePullPolicy: Always
 
 ingress:
   enabled: true
@@ -34,17 +26,90 @@ ingress:
 
 resources:
   limits:
-    cpu: 1000m
-    memory: 512Mi
+    cpu: 500m
+    memory: 256Mi
   requests:
-    cpu: 100m
-    memory: 128Mi
+    cpu: 50m
+    memory: 64Mi
 
 nodeSelector: {}
 tolerations: []
 affinity: {}
 
-# 应用配置
+# 微服务（阶段 A Pod，见 ARCHITECTURE.md）
+microservices:
+  gateway:
+    enabled: true
+    name: aiops-gateway
+    port: 8080
+    replicas: 1
+    mountConfig: true
+  platform:
+    enabled: true
+    name: aiops-platform
+    port: 8081
+    replicas: 1
+    mountConfig: true
+  chat:
+    enabled: true
+    name: aiops-chat
+    port: 8082
+    replicas: 1
+    mountConfig: true
+  policy:
+    enabled: true
+    name: aiops-policy
+    port: 8083
+    replicas: 1
+    mountConfig: true
+  executor:
+    enabled: true
+    name: aiops-executor
+    port: 8084
+    replicas: 1
+    mountConfig: true
+  pluginMock:
+    enabled: true
+    name: aiops-plugin-mock
+    port: 8090
+    replicas: 1
+  pluginKubernetes:
+    enabled: true
+    name: aiops-plugin-kubernetes
+    port: 8091
+    replicas: 1
+    serviceAccount: aiops-plugin-kubernetes
+  pluginPrometheus:
+    enabled: true
+    name: aiops-plugin-prometheus
+    port: 8092
+    replicas: 1
+  pluginLogs:
+    enabled: true
+    name: aiops-plugin-logs
+    port: 8093
+    replicas: 1
+  moduleKb:
+    enabled: true
+    name: aiops-module-kb
+    port: 8085
+    replicas: 1
+    mountConfig: true
+  worker:
+    enabled: true
+    name: aiops-worker
+    port: 8086
+    replicas: 1
+
+# 集群内集成（联调时按环境填写；空则部分能力不可用）
+integrations:
+  llm:
+    baseUrl: ""
+    apiKey: ""
+    model: ""
+  prometheusUrl: ""
+  logsUrl: ""
+
 config:
   domain: aiops.tclpv.com
   admin:
@@ -56,12 +121,10 @@ config:
     bufferTime: 86400000
     issuer: aiops
 
-# 数据库迁移 Job（首次安装时执行）
 migrate:
   enabled: true
   backoffLimit: 3
 
-# MySQL 中间件（副本固定为 1，勿与 replicaCount 混淆）
 mysql:
   enabled: true
   replicaCount: 1
@@ -77,7 +140,6 @@ mysql:
     port: 3306
   persistence:
     enabled: true
-    # false：不创建 PVC，请自行创建后填写 existingClaim
     createPVC: false
     existingClaim: aiops-mysql
     size: 8Gi
@@ -90,7 +152,6 @@ mysql:
       cpu: 250m
       memory: 512Mi
 
-# 使用外部 MySQL 时设置 mysql.enabled=false 并配置 externalMysql
 externalMysql:
   host: ""
   port: "3306"

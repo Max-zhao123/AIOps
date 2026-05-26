@@ -1,3 +1,4 @@
+// 遗留单体入口；生产请使用 cmd/platform 等微服务（REQ-019）。
 package main
 
 import (

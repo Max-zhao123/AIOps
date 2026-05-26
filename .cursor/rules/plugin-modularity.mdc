@@ -1,0 +1,15 @@
+---
+description: AIOps 编码硬规则 G-001~G-006（读完 docs-reading-order 后遵守）
+alwaysApply: true
+---
+
+# AIOps 编码硬规则
+
+**须先完成** [docs-reading-order.mdc](./docs-reading-order.mdc)。
+
+- 实现范围 = [DEVELOPMENT_PLAN.md](../docs/DEVELOPMENT_PLAN.md) **30 条 REQ**；顺序见 PLAN「全局实现顺序」
+- **G-006**：30 条代码写完再联调；开发阶段禁止 Helm/跳板机
+- 微服务一模块一 Pod；gateway/platform 不合并；透传 `X-Request-Id`、`X-AIOps-*`
+- `execution_records` 仅 executor；审计 fail-open
+- 禁止：单体 aiops-api、executor `import pkg/plugins/*`、switch plugin、海量数据入 MySQL
+- 进度 → DEVELOPMENT_PLAN；联调 → BASTION-DEV（仅联调阶段）

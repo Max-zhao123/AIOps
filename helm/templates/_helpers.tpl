@@ -5,9 +5,6 @@ Expand the name of the chart.
 {{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" }}
 {{- end }}
 
-{{/*
-Create a default fully qualified app name.
-*/}}
 {{- define "aiops.fullname" -}}
 {{- if .Values.fullnameOverride }}
 {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
@@ -37,11 +34,6 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{- define "aiops.selectorLabels" -}}
 app.kubernetes.io/name: {{ include "aiops.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-{{- end }}
-
-{{- define "aiops.appLabels" -}}
-{{ include "aiops.selectorLabels" . }}
-app.kubernetes.io/component: app
 {{- end }}
 
 {{- define "aiops.mysqlLabels" -}}
@@ -106,4 +98,16 @@ app.kubernetes.io/component: mysql
 imagePullSecrets:
   {{- toYaml . | nindent 2 }}
 {{- end }}
+{{- end }}
+
+{{- define "aiops.image" -}}
+{{- $registry := .Values.imageRegistry -}}
+{{- $name := .svcName -}}
+{{- printf "%s%s:%s" $registry $name $.Values.imageTag -}}
+{{- end }}
+
+{{- define "aiops.msLabels" -}}
+app.kubernetes.io/name: {{ .svc.name }}
+app.kubernetes.io/instance: {{ .root.Release.Name }}
+app.kubernetes.io/component: {{ .key }}
 {{- end }}

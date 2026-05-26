@@ -3,6 +3,8 @@
 
 ## 🌟 项目愿景  
 
+> AI 入口：[docs/DEVELOPMENT_PLAN.md](./docs/DEVELOPMENT_PLAN.md)（30 条 REQ）· [docs/README.md](./docs/README.md) · 规则：[docs-reading-order.mdc](./.cursor/rules/docs-reading-order.mdc) · **全部需求写完再联调**：[dev-then-integrate.mdc](./.cursor/rules/dev-then-integrate.mdc)
+
 aiops 致力于构建一个 **开放、高效、易用** 的 AIOps 平台，利用大模型（LLM）技术赋能运维行业，帮助企业和开发者：  
 ✔ **自动化运维** - 减少人工干预，提升运维效率
 ✔ **智能故障预测** - 提前发现潜在问题，降低业务风险  

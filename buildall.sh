@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# aiops 镜像构建脚本
+# AIOps 多服务镜像构建
 # 用法:
-#   ./buildall.sh                    # 本地构建，标签 aiops:latest
-#   REGISTRY=harbor.example.com/proj/ TAG=v1.0.0 ./buildall.sh
-#   PUSH=true REGISTRY=... TAG=... ./buildall.sh   # 构建并推送
+#   ./buildall.sh                                    # 构建全部 11 个业务镜像
+#   IMAGE_NAME=aiops-gateway TAG=v1 ./buildall.sh    # 仅构建 gateway
+#   REGISTRY=harbor.example.com/proj/ TAG=latest PUSH=true ./buildall.sh
 #
 
 set -euo pipefail
@@ -12,65 +12,111 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "${SCRIPT_DIR}"
 
-# 镜像仓库前缀，如 harbor.example.com/aiops/ 需以 / 结尾
 REGISTRY="${REGISTRY:-swr.cn-south-1.myhuaweicloud.com/ops-images/}"
 TAG="${TAG:-latest}"
-IMAGE_NAME="${IMAGE_NAME:-aiops}"
+IMAGE_NAME="${IMAGE_NAME:-}"
 PLATFORM="${PLATFORM:-linux/amd64}"
 PUSH="${PUSH:-true}"
-# Alpine apk 源，国内/华为云构建建议用华为或阿里云镜像
 APK_MIRROR="${APK_MIRROR:-https://mirrors.huaweicloud.com/alpine}"
-# Go 模块代理，避免走 proxy.golang.org（可改为公司内网 GOPROXY）
 GOPROXY="${GOPROXY:-https://goproxy.cn,direct}"
 GOSUMDB="${GOSUMDB:-sum.golang.google.cn}"
-# 必须开启 BuildKit，才能使用 go mod / go build 层缓存
 export DOCKER_BUILDKIT=1
 
 if [[ -n "${REGISTRY}" && "${REGISTRY}" != */ ]]; then
   REGISTRY="${REGISTRY}/"
 fi
 
-FULL_IMAGE="${REGISTRY}${IMAGE_NAME}:${TAG}"
+# IMAGE_NAME -> SERVICE（cmd 目录名）
+image_to_service() {
+  case "$1" in
+    aiops-gateway) echo "gateway" ;;
+    aiops-platform) echo "platform" ;;
+    aiops-chat) echo "chat" ;;
+    aiops-policy) echo "policy" ;;
+    aiops-executor) echo "executor" ;;
+    aiops-plugin-mock) echo "plugin-mock" ;;
+    aiops-plugin-kubernetes) echo "plugin-kubernetes" ;;
+    aiops-plugin-prometheus) echo "plugin-prometheus" ;;
+    aiops-plugin-logs) echo "plugin-logs" ;;
+    aiops-module-kb) echo "module-kb" ;;
+    aiops-worker) echo "worker" ;;
+    aiops) echo "platform" ;;
+    *) echo "" ;;
+  esac
+}
 
-echo "=========================================="
-echo " aiops 镜像构建"
-echo " 镜像: ${FULL_IMAGE}"
-echo " 平台: ${PLATFORM}"
-echo " APK源: ${APK_MIRROR}"
-echo " GOPROXY: ${GOPROXY}"
-echo " BuildKit: ${DOCKER_BUILDKIT}"
-echo "=========================================="
+ALL_IMAGES=(
+  aiops-gateway
+  aiops-platform
+  aiops-chat
+  aiops-policy
+  aiops-executor
+  aiops-plugin-mock
+  aiops-plugin-kubernetes
+  aiops-plugin-prometheus
+  aiops-plugin-logs
+  aiops-module-kb
+  aiops-worker
+)
+
+build_one() {
+  local img="$1"
+  local svc
+  svc="$(image_to_service "${img}")"
+  if [[ -z "${svc}" ]]; then
+    echo "错误: 未知 IMAGE_NAME=${img}" >&2
+    exit 1
+  fi
+
+  local target="runtime"
+  if [[ "${svc}" == "platform" ]]; then
+    target="runtime-with-migrate"
+  fi
+
+  local full_image="${REGISTRY}${img}:${TAG}"
+  echo "------------------------------------------"
+  echo "构建 ${full_image} (SERVICE=${svc}, target=${target})"
+  echo "------------------------------------------"
+
+  docker build \
+    --platform "${PLATFORM}" \
+    --build-arg APK_MIRROR="${APK_MIRROR}" \
+    --build-arg GOPROXY="${GOPROXY}" \
+    --build-arg GOSUMDB="${GOSUMDB}" \
+    --build-arg SERVICE="${svc}" \
+    --target "${target}" \
+    -f Dockerfile \
+    -t "${full_image}" \
+    .
+
+  if [[ "${PUSH}" == "true" ]]; then
+    if [[ -z "${REGISTRY}" ]]; then
+      echo "错误: PUSH=true 时必须设置 REGISTRY" >&2
+      exit 1
+    fi
+    docker push "${full_image}"
+    echo "已推送 ${full_image}"
+  fi
+}
 
 if ! command -v docker &>/dev/null; then
-  echo "错误: 未找到 docker 命令，请先安装 Docker" >&2
+  echo "错误: 未找到 docker" >&2
   exit 1
 fi
 
-echo "[1/2] 构建应用镜像..."
-docker build \
-  --platform "${PLATFORM}" \
-  --build-arg APK_MIRROR="${APK_MIRROR}" \
-  --build-arg GOPROXY="${GOPROXY}" \
-  --build-arg GOSUMDB="${GOSUMDB}" \
-  -f Dockerfile \
-  -t "${FULL_IMAGE}" \
-  .
+echo "=========================================="
+echo " AIOps 多服务镜像构建"
+echo " REGISTRY=${REGISTRY} TAG=${TAG}"
+echo "=========================================="
 
-echo "[2/2] 构建完成: ${FULL_IMAGE}"
-docker images "${FULL_IMAGE}" --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}\t{{.CreatedAt}}"
-
-if [[ "${PUSH}" == "true" ]]; then
-  if [[ -z "${REGISTRY}" ]]; then
-    echo "错误: PUSH=true 时必须设置 REGISTRY（镜像仓库地址）" >&2
-    exit 1
-  fi
-  echo "推送镜像到仓库..."
-  docker push "${FULL_IMAGE}"
-  echo "推送完成: ${FULL_IMAGE}"
+if [[ -n "${IMAGE_NAME}" ]]; then
+  build_one "${IMAGE_NAME}"
+else
+  for img in "${ALL_IMAGES[@]}"; do
+    build_one "${img}"
+  done
 fi
 
 echo ""
-echo "Helm 部署示例:"
-echo "  helm upgrade --install aiops ./helm/aiops \\"
-echo "    --set image.repository=${REGISTRY}${IMAGE_NAME} \\"
-echo "    --set image.tag=${TAG}"
+echo "Helm 部署:"
+echo "  helm upgrade --install aiops ./helm -n aiops --create-namespace"

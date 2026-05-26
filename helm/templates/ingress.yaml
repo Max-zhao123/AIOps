@@ -33,9 +33,9 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "aiops.fullname" $ }}
+                name: {{ $.Values.microservices.gateway.name }}
                 port:
-                  number: {{ $.Values.service.port }}
+                  number: {{ $.Values.microservices.gateway.port }}
           {{- end }}
     {{- end }}
 {{- end }}

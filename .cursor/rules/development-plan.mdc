@@ -1,0 +1,13 @@
+---
+description: DEVELOPMENT_PLAN 为 AI 实现主文档；30 REQ 写完再联调
+alwaysApply: true
+---
+
+**第一必读**：[docs/DEVELOPMENT_PLAN.md](../docs/DEVELOPMENT_PLAN.md)（30 条 REQ：实现要点 + 验收 + 进度）。
+
+节奏 [dev-then-integrate.mdc](./dev-then-integrate.mdc)：**A+B+C+D 全部代码完成 → 再联调**；禁止单 REQ/单阶段穿插部署。
+
+每完成或推进一条 REQ，同轮更新 DEVELOPMENT_PLAN：`代码`、`状态`、`完成日期`、`备注`、文首 `当前阶段` / 进度计数。
+
+- 开发阶段：`done` 仅限联调验收后
+- 同时仅 1 条 `in_progress`（建议）

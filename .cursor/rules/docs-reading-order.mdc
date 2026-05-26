@@ -1,0 +1,33 @@
+---
+description: 新接手 AIOps 必须先读 DEVELOPMENT_PLAN 再写代码
+alwaysApply: true
+---
+
+# 文档阅读顺序（新接手必读）
+
+**未读 DEVELOPMENT_PLAN 全文前禁止改代码。**
+
+## 强制顺序
+
+| 步 | 文件 | 目的 |
+|----|------|------|
+| **1** | [docs/DEVELOPMENT_PLAN.md](../docs/DEVELOPMENT_PLAN.md) | **30 条 REQ**、全局顺序、实现要点、验收、当前 `in_progress` |
+| 2 | [docs/PRD.md](../docs/PRD.md) | §0 G-001～G-006；§3 契约 |
+| 3 | [docs/ARCHITECTURE.md](../docs/ARCHITECTURE.md) | Pod/端口 |
+| 4 | [docs/CONVENTIONS.md](../docs/CONVENTIONS.md) | checklist |
+| 5 | [docs/BASTION-DEV.md](../docs/BASTION-DEV.md) | **仅当**文首阶段为「开发完成，待联调」 |
+
+索引：[docs/README.md](../docs/README.md)
+
+## 自检
+
+- 实现范围 = PLAN 中 **30 条**，不是只做阶段 A
+- 当前处于 **开发** 还是 **联调**（G-006）
+- 未读 PRD §0 不动手
+
+## 关联规则
+
+- [dev-then-integrate.mdc](./dev-then-integrate.mdc) — **全部需求写完再联调**
+- [development-plan.mdc](./development-plan.mdc) — 更新 PLAN
+- [plugin-modularity.mdc](./plugin-modularity.mdc)
+- [ops-bastion.mdc](./ops-bastion.mdc)

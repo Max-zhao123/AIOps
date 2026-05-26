@@ -1,8 +1,8 @@
-{{- if .Values.migrate.enabled }}
+{{- if and .Values.migrate.enabled .Values.microservices.platform.enabled }}
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: {{ include "aiops.fullname" . }}-migrate
+  name: aiops-migrate
   labels:
     {{- include "aiops.labels" . | nindent 4 }}
     app.kubernetes.io/component: migrate
@@ -21,9 +21,9 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: migrate
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          command: ["./migrate"]
+          image: {{ include "aiops.image" (dict "root" . "svcName" .Values.microservices.platform.name "Values" .Values) }}
+          imagePullPolicy: {{ .Values.imagePullPolicy }}
+          command: ["/app/migrate"]
           env:
             - name: EWA_CONFIG
               value: /app/config/config.yaml

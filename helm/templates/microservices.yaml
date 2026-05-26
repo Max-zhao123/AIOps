@@ -1,0 +1,165 @@
+{{- range $key, $svc := .Values.microservices }}
+{{- if $svc.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $svc.name }}
+  labels:
+    {{- include "aiops.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $key }}
+spec:
+  replicas: {{ $svc.replicas | default 1 }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ $svc.name }}
+      app.kubernetes.io/instance: {{ $.Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ $svc.name }}
+        app.kubernetes.io/instance: {{ $.Release.Name }}
+        app.kubernetes.io/component: {{ $key }}
+    spec:
+      {{- if $svc.serviceAccount }}
+      serviceAccountName: {{ $svc.serviceAccount }}
+      {{- end }}
+      {{- include "aiops.imagePullSecrets" $ | nindent 6 }}
+      containers:
+        - name: {{ $key }}
+          image: {{ include "aiops.image" (dict "root" $ "svcName" $svc.name "Values" $.Values) }}
+          imagePullPolicy: {{ $.Values.imagePullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ $svc.port }}
+              protocol: TCP
+          env:
+            - name: GIN_MODE
+              value: release
+            - name: AIOPS_SERVICE
+              value: {{ $svc.name | trimPrefix "aiops-" | quote }}
+            - name: PORT
+              value: {{ $svc.port | quote }}
+            {{- $ms := $.Values.microservices }}
+            {{- if eq $key "gateway" }}
+            - name: AIOPS_PLATFORM_URL
+              value: http://{{ $ms.platform.name }}:{{ $ms.platform.port }}
+            - name: AIOPS_CHAT_URL
+              value: http://{{ $ms.chat.name }}:{{ $ms.chat.port }}
+            - name: AIOPS_EXECUTOR_URL
+              value: http://{{ $ms.executor.name }}:{{ $ms.executor.port }}
+            - name: AIOPS_MODULE_KB_URL
+              value: http://{{ $ms.moduleKb.name }}:{{ $ms.moduleKb.port }}
+            {{- end }}
+            {{- if eq $key "platform" }}
+            - name: AIOPS_EXECUTOR_URL
+              value: http://{{ $ms.executor.name }}:{{ $ms.executor.port }}
+            - name: AIOPS_CHAT_URL
+              value: http://{{ $ms.chat.name }}:{{ $ms.chat.port }}
+            - name: AIOPS_MODULE_KB_URL
+              value: http://{{ $ms.moduleKb.name }}:{{ $ms.moduleKb.port }}
+            - name: AIOPS_PLUGIN_PROM_URL
+              value: http://{{ $ms.pluginPrometheus.name }}:{{ $ms.pluginPrometheus.port }}
+            - name: AIOPS_PLUGIN_LOGS_URL
+              value: http://{{ $ms.pluginLogs.name }}:{{ $ms.pluginLogs.port }}
+            {{- end }}
+            {{- if eq $key "chat" }}
+            - name: AIOPS_POLICY_URL
+              value: http://{{ $ms.policy.name }}:{{ $ms.policy.port }}
+            - name: AIOPS_EXECUTOR_URL
+              value: http://{{ $ms.executor.name }}:{{ $ms.executor.port }}
+            - name: AIOPS_MODULE_KB_URL
+              value: http://{{ $ms.moduleKb.name }}:{{ $ms.moduleKb.port }}
+            {{- end }}
+            {{- if eq $key "executor" }}
+            - name: AIOPS_POLICY_URL
+              value: http://{{ $ms.policy.name }}:{{ $ms.policy.port }}
+            - name: AIOPS_PLUGIN_MOCK_URL
+              value: http://{{ $ms.pluginMock.name }}:{{ $ms.pluginMock.port }}
+            - name: AIOPS_PLUGIN_K8S_URL
+              value: http://{{ $ms.pluginKubernetes.name }}:{{ $ms.pluginKubernetes.port }}
+            - name: AIOPS_PLUGIN_PROM_URL
+              value: http://{{ $ms.pluginPrometheus.name }}:{{ $ms.pluginPrometheus.port }}
+            - name: AIOPS_PLUGIN_LOGS_URL
+              value: http://{{ $ms.pluginLogs.name }}:{{ $ms.pluginLogs.port }}
+            {{- end }}
+            {{- if eq $key "worker" }}
+            - name: AIOPS_PLATFORM_URL
+              value: http://{{ $ms.platform.name }}:{{ $ms.platform.port }}
+            {{- end }}
+            {{- if eq $key "pluginPrometheus" }}
+            {{- with $.Values.integrations.prometheusUrl }}
+            - name: AIOPS_PROMETHEUS_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- end }}
+            {{- if eq $key "pluginLogs" }}
+            {{- with $.Values.integrations.logsUrl }}
+            - name: AIOPS_LOGS_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- end }}
+            {{- if or (eq $key "chat") (eq $key "platform") }}
+            {{- with $.Values.integrations.llm.baseUrl }}
+            - name: AIOPS_LLM_BASE_URL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with $.Values.integrations.llm.apiKey }}
+            - name: AIOPS_LLM_API_KEY
+              value: {{ . | quote }}
+            {{- end }}
+            {{- with $.Values.integrations.llm.model }}
+            - name: AIOPS_LLM_MODEL
+              value: {{ . | quote }}
+            {{- end }}
+            {{- end }}
+            {{- if $svc.mountConfig }}
+            - name: EWA_CONFIG
+              value: /app/config/config.yaml
+            {{- end }}
+          {{- if $svc.mountConfig }}
+          volumeMounts:
+            - name: config
+              mountPath: /app/config/config.yaml
+              subPath: config.yaml
+          {{- end }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          resources:
+            {{- toYaml $.Values.resources | nindent 12 }}
+      {{- if $svc.mountConfig }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "aiops.fullname" $ }}-config
+      {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $svc.name }}
+  labels:
+    app.kubernetes.io/name: {{ $svc.name }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+spec:
+  type: ClusterIP
+  ports:
+    - port: {{ $svc.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ $svc.name }}
+    app.kubernetes.io/instance: {{ $.Release.Name }}
+{{- end }}
+{{- end }}
