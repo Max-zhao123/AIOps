@@ -10,10 +10,11 @@
 # 本机
 ssh -i "/Users/zhao/Documents/密钥/ops-private.pem" -o StrictHostKeyChecking=no root@10.51.6.240
 
-# 跳板机
+# 跳板机（代码以 origin 为准，应指向华为 CodeHub）
 export KUBECONFIG=/root/.kube/gf-ops.config
 cd /root/max/aiops
-git pull
+git remote -v   # 确认 origin = codehub-cn-south-1.../AIOps.git
+git pull origin dev
 ```
 
 | 本机代码 | 跳板机 |
