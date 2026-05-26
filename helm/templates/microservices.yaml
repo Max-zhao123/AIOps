@@ -26,7 +26,7 @@ spec:
       {{- end }}
       {{- include "aiops.imagePullSecrets" $ | nindent 6 }}
       containers:
-        - name: {{ $key }}
+        - name: {{ $svc.name | trimPrefix "aiops-plugin-" | trimPrefix "aiops-module-" | trimPrefix "aiops-" }}
           image: {{ include "aiops.image" (dict "root" $ "svcName" $svc.name "Values" $.Values) }}
           imagePullPolicy: {{ $.Values.imagePullPolicy }}
           ports:
