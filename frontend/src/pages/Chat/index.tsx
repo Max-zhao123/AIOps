@@ -312,22 +312,55 @@ export default function Chat() {
 
         {/* 底部输入 */}
         <div style={{ padding: '12px 24px', borderTop: '1px solid #f0f0f0', background: '#fff' }}>
-          <Space.Compact style={{ width: '100%' }}>
+          {/* 工具栏 — 参照 CodeBuddy 风格 */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: 8,
+              marginBottom: 8,
+              padding: '6px 10px',
+              background: '#1e1e2e',
+              borderRadius: 8,
+            }}
+          >
             <EnvironmentSelector
               value={environment}
               onChange={setEnvironment}
-              style={{ width: 160 }}
+              style={{
+                minWidth: 140,
+                background: '#2d2d3d',
+                borderRadius: 6,
+              }}
+              placeholder="选择环境"
             />
-            {models.length > 0 && (
-              <Select
-                value={selectedModel || undefined}
-                onChange={setSelectedModel}
-                placeholder="默认模型"
-                style={{ width: 150 }}
-                allowClear
-                options={models.map((m) => ({ label: m.name, value: m.name }))}
-              />
+            <Select
+              value={selectedModel || undefined}
+              onChange={setSelectedModel}
+              placeholder={models.length > 0 ? '选择模型' : '暂无模型'}
+              allowClear
+              disabled={models.length === 0}
+              options={models.map((m) => ({ label: m.name, value: m.name }))}
+              style={{
+                minWidth: 140,
+                background: '#2d2d3d',
+                borderRadius: 6,
+              }}
+              dropdownStyle={{ minWidth: 180 }}
+            />
+            {models.length === 0 && (
+              <Button
+                type="link"
+                size="small"
+                style={{ color: '#a0a0b0', padding: 0 }}
+                onClick={() => navigate('/llm-config')}
+              >
+                去配置模型 →
+              </Button>
             )}
+          </div>
+
+          <Space.Compact style={{ width: '100%' }}>
             <TextArea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
