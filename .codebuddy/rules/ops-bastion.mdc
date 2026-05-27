@@ -1,0 +1,14 @@
+---
+description: 跳板机 SSH 与集群入口
+alwaysApply: true
+---
+
+| 项 | 值 |
+|----|-----|
+| SSH | `root@10.51.6.240`，密钥 `/Users/zhao/Documents/密钥/ops-private.pem` |
+| KUBECONFIG | `/root/.kube/gf-ops.config` |
+| 项目目录 | `/root/max/aiops` |
+| 命名空间 | `aiops` |
+| 现网 | https://aiops.tclpv.com ，Admin `/admin/login/` ，测试 `admin`/`admin@123` |
+
+命令清单：[docs/BASTION-DEV.md](../docs/BASTION-DEV.md)

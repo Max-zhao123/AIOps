@@ -11,6 +11,9 @@ import (
 
 // RegisterTables 阶段 A+E 控制面表。
 func RegisterTables(db *gorm.DB) {
+	if db == nil {
+		panic("RegisterTables: nil database, check MySQL connectivity")
+	}
 	err := db.Set("gorm:table_options", "CHARSET=utf8mb4").AutoMigrate(
 		// Phase A
 		model.Environment{},
