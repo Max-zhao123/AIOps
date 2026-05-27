@@ -54,17 +54,13 @@ export default function Actions() {
         rowKey="id"
         loading={loading}
         columns={[
-          { title: '时间', dataIndex: 'created_at', key: 'time', width: 180 },
-          { title: '用户', dataIndex: 'username', key: 'user', width: 100 },
+          { title: '时间', dataIndex: 'createdAt', key: 'time', width: 180 },
+          { title: '用户ID', dataIndex: 'userId', key: 'user', width: 80 },
           {
             title: '操作摘要',
             key: 'summary',
             ellipsis: true,
-            render: (_: unknown, r: ExecutionRecord) => {
-              const plan = r.action_plan
-              if (!plan) return '-'
-              return `${plan.plugin} / ${plan.action}${plan.summary ? ` - ${plan.summary}` : ''}`
-            },
+            render: (_: unknown, r: ExecutionRecord) => `${r.plugin} / ${r.action}`,
           },
           {
             title: '命令预览',
@@ -72,7 +68,7 @@ export default function Actions() {
             width: 300,
             render: (_: unknown, r: ExecutionRecord) => (
               <code style={{ fontSize: 12, background: '#f5f5f5', padding: '2px 6px', borderRadius: 4 }}>
-                {r.action_plan?.commandPreview || '-'}
+                {JSON.stringify(JSON.parse(r.planJson || '{}'), null, 2).substring(0, 200)}
               </code>
             ),
           },

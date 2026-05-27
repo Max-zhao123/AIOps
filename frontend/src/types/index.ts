@@ -75,14 +75,16 @@ export interface ActionPlan {
 // ============ 执行 ============
 export interface ExecutionRecord {
   id: number
-  user_id: number
-  username: string
-  action_plan: ActionPlan
+  sessionId: number
+  userId: number
+  plugin: string
+  action: string
+  planJson: string
   decision: string
-  status: 'pending' | 'confirmed' | 'rejected' | 'executed' | 'failed'
-  result?: string
+  status: 'pending' | 'running' | 'succeeded' | 'failed' | 'rejected'
+  resultJson?: string
   environment: string
-  created_at: string
+  createdAt: string
 }
 
 export interface ConfirmRequest {

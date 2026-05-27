@@ -31,7 +31,7 @@ func Register(r *gin.Engine, db *gorm.DB) {
 		Audit:        audit.NewClient(),
 	}
 	r.POST("/internal/v1/run", h.Run)
-	r.GET("/internal/v1/actions/pending", h.Pending)
+	r.GET("/api/v1/actions/pending", h.Pending)
 	r.POST("/api/v1/actions/confirm", h.Confirm)
 }
 
