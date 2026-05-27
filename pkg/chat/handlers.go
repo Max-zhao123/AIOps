@@ -314,21 +314,23 @@ func (h *Handler) auditEvent(c *gin.Context, eventType, env string, payload inte
 }
 
 func truncate(s string, n int) string {
-	if len(s) <= n {
+	runes := []rune(s)
+	if len(runes) <= n {
 		return s
 	}
-	return s[:n]
+	return string(runes[:n])
 }
 
 func chunkText(s string, size int) []string {
+	runes := []rune(s)
 	var out []string
-	for len(s) > 0 {
-		if len(s) <= size {
-			out = append(out, s)
+	for len(runes) > 0 {
+		if len(runes) <= size {
+			out = append(out, string(runes))
 			break
 		}
-		out = append(out, s[:size])
-		s = s[size:]
+		out = append(out, string(runes[:size]))
+		runes = runes[size:]
 	}
 	return out
 }
