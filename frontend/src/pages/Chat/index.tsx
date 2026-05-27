@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {
-  Layout, Input, Button, List, Typography, Space, Tag, Avatar, App, Spin, Empty, Divider, Select,
+  Layout, Input, Button, List, Typography, Space, Tag, Avatar, App, Spin, Empty, Divider, Select, Tooltip, Image,
 } from 'antd'
 import {
   SendOutlined, PlusOutlined, UserOutlined, RobotOutlined,
-  StopOutlined, ClearOutlined,
+  StopOutlined, ClearOutlined, PictureOutlined, PaperClipOutlined,
+  CloseCircleOutlined,
 } from '@ant-design/icons'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
@@ -44,6 +45,33 @@ export default function Chat() {
   const [rcaInput, setRcaInput] = useState('')
   const [selectedModel, setSelectedModel] = useState<string>('')
   const [models, setModels] = useState<LlmConfig[]>([])
+  const [uploadedImages, setUploadedImages] = useState<string[]>([])
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+    Array.from(files).forEach((file) => {
+      if (!file.type.startsWith('image/')) {
+        antMsg.warning(`${file.name} 不是图片文件`)
+        return
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        antMsg.warning(`${file.name} 超过 5MB 限制`)
+        return
+      }
+      const reader = new FileReader()
+      reader.onload = () => {
+        setUploadedImages((prev) => [...prev, reader.result as string])
+      }
+      reader.readAsDataURL(file)
+    })
+    e.target.value = ''
+  }
+
+  const removeImage = (idx: number) => {
+    setUploadedImages((prev) => prev.filter((_, i) => i !== idx))
+  }
 
   useEffect(() => {
     listLlmConfigs().then((data) => {
@@ -311,56 +339,126 @@ export default function Chat() {
         </div>
 
         {/* 底部输入 */}
-        <div style={{ padding: '12px 24px', borderTop: '1px solid #f0f0f0', background: '#fff' }}>
-          {/* 工具栏 — 参照 CodeBuddy 风格 */}
+        <div style={{ padding: '12px 24px', background: '#f7f8fa' }}>
+          {/* 整体圆角输入卡片 */}
           <div
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: 8,
-              marginBottom: 8,
-              padding: '6px 10px',
-              background: '#1e1e2e',
-              borderRadius: 8,
+              background: '#fff',
+              border: '1px solid #e8e8ed',
+              borderRadius: 16,
+              boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+              overflow: 'hidden',
             }}
           >
-            <EnvironmentSelector
-              value={environment}
-              onChange={setEnvironment}
+            {/* 顶部工具栏 */}
+            <div
               style={{
-                minWidth: 140,
-                background: '#2d2d3d',
-                borderRadius: 6,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '8px 14px 0',
               }}
-              placeholder="选择环境"
-            />
-            <Select
-              value={selectedModel || undefined}
-              onChange={setSelectedModel}
-              placeholder={models.length > 0 ? '选择模型' : '暂无模型'}
-              allowClear
-              disabled={models.length === 0}
-              options={models.map((m) => ({ label: m.name, value: m.name }))}
-              style={{
-                minWidth: 140,
-                background: '#2d2d3d',
-                borderRadius: 6,
-              }}
-              dropdownStyle={{ minWidth: 180 }}
-            />
-            {models.length === 0 && (
-              <Button
-                type="link"
-                size="small"
-                style={{ color: '#a0a0b0', padding: 0 }}
-                onClick={() => navigate('/llm-config')}
-              >
-                去配置模型 →
-              </Button>
-            )}
-          </div>
+            >
+              {/* 左侧工具按钮 */}
+              <Space size={4}>
+                <Tooltip title="上传图片">
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<PictureOutlined />}
+                    style={{ color: '#8c8c8c' }}
+                    onClick={() => fileInputRef.current?.click()}
+                  />
+                </Tooltip>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  style={{ display: 'none' }}
+                  onChange={handleImageSelect}
+                />
+                <Tooltip title="上传附件">
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<PaperClipOutlined />}
+                    style={{ color: '#8c8c8c' }}
+                    onClick={() => antMsg.info('附件功能即将上线')}
+                  />
+                </Tooltip>
+              </Space>
 
-          <Space.Compact style={{ width: '100%' }}>
+              {/* 右侧环境+模型 */}
+              <Space size={4}>
+                <EnvironmentSelector
+                  value={environment}
+                  onChange={setEnvironment}
+                  placeholder="环境"
+                  variant="borderless"
+                  size="small"
+                  style={{ minWidth: 110, fontSize: 12, color: '#666' }}
+                />
+                <Select
+                  value={selectedModel || undefined}
+                  onChange={setSelectedModel}
+                  placeholder="模型"
+                  allowClear
+                  variant="borderless"
+                  size="small"
+                  disabled={models.length === 0}
+                  options={models.map((m) => ({ label: m.name, value: m.name }))}
+                  style={{ minWidth: 90, fontSize: 12 }}
+                  dropdownStyle={{ minWidth: 160 }}
+                />
+                {models.length === 0 && (
+                  <Button
+                    type="link"
+                    size="small"
+                    style={{ color: '#999', padding: 0, fontSize: 12 }}
+                    onClick={() => navigate('/llm-config')}
+                  >
+                    去配置模型
+                  </Button>
+                )}
+              </Space>
+            </div>
+
+            {/* 图片预览区 */}
+            {uploadedImages.length > 0 && (
+              <div style={{ display: 'flex', gap: 8, padding: '8px 14px 0', flexWrap: 'wrap' }}>
+                {uploadedImages.map((src, idx) => (
+                  <div key={idx} style={{ position: 'relative' }}>
+                    <Image
+                      src={src}
+                      width={64}
+                      height={64}
+                      style={{ borderRadius: 8, objectFit: 'cover', border: '1px solid #eee' }}
+                      preview={{ mask: null }}
+                    />
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<CloseCircleOutlined />}
+                      danger
+                      style={{
+                        position: 'absolute',
+                        top: -8,
+                        right: -8,
+                        padding: 0,
+                        minWidth: 20,
+                        height: 20,
+                        background: '#fff',
+                        borderRadius: '50%',
+                      }}
+                      onClick={() => removeImage(idx)}
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* 输入框 */}
             <TextArea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
@@ -371,23 +469,43 @@ export default function Chat() {
                 }
               }}
               placeholder="输入运维需求，如：查看所有 Pod 状态 | Shift+Enter 换行"
-              autoSize={{ minRows: 1, maxRows: 4 }}
-              style={{ flex: 1 }}
+              autoSize={{ minRows: 1, maxRows: 6 }}
+              bordered={false}
+              style={{
+                padding: '10px 14px',
+                fontSize: 14,
+                resize: 'none',
+              }}
             />
-            {isStreaming ? (
-              <Button icon={<StopOutlined />} danger onClick={disconnect}>
-                停止
-              </Button>
-            ) : (
-              <Button
-                type="primary"
-                icon={<SendOutlined />}
-                onClick={sendMessage}
-              >
-                发送
-              </Button>
-            )}
-          </Space.Compact>
+
+            {/* 底部发送栏 */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'flex-end',
+                padding: '6px 12px 10px',
+                gap: 8,
+              }}
+            >
+              {isStreaming ? (
+                <Button
+                  icon={<StopOutlined />}
+                  danger
+                  shape="circle"
+                  onClick={disconnect}
+                />
+              ) : (
+                <Button
+                  type="primary"
+                  shape="circle"
+                  icon={<SendOutlined />}
+                  disabled={!inputValue.trim() && uploadedImages.length === 0}
+                  onClick={sendMessage}
+                />
+              )}
+            </div>
+          </div>
         </div>
       </Content>
 
