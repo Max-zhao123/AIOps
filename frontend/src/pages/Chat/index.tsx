@@ -375,7 +375,7 @@ export default function Chat() {
                       }}
                     >
                       {(idx === messages.length - 1 && isStreaming && msg.content === '')
-                        ? <Text type="secondary" className="streaming-cursor">思考中</Text>
+                        ? <Text type="secondary" className="streaming-cursor">思考中....</Text>
                         : <StreamingMessage
                             content={msg.content}
                             isStreaming={idx === messages.length - 1 && isStreaming}

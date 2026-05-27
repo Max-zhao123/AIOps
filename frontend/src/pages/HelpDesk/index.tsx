@@ -102,7 +102,7 @@ export default function HelpDesk() {
         )}
         {loading && (
           <div style={{ textAlign: 'center', padding: 8 }}>
-            <Text type="secondary"><Spin size="small" /> 思考中</Text>
+            <Text type="secondary"><Spin size="small" /> 思考中....</Text>
           </div>
         )}
         <div ref={messagesEndRef} />

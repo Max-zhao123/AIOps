@@ -12,7 +12,7 @@ interface Props {
 
 export default function StreamingMessage({ content, isStreaming }: Props) {
   if (!content) {
-    return isStreaming ? <Text className="streaming-cursor" type="secondary">思考中</Text> : null
+    return isStreaming ? <Text className="streaming-cursor" type="secondary">思考中....</Text> : null
   }
 
   return (
