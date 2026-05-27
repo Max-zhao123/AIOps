@@ -40,6 +40,7 @@ image_to_service() {
     aiops-plugin-logs) echo "plugin-logs" ;;
     aiops-module-kb) echo "module-kb" ;;
     aiops-worker) echo "worker" ;;
+    aiops-frontend) echo "frontend" ;;
     aiops) echo "platform" ;;
     *) echo "" ;;
   esac
@@ -57,10 +58,31 @@ ALL_IMAGES=(
   aiops-plugin-logs
   aiops-module-kb
   aiops-worker
+  aiops-frontend
 )
 
 build_one() {
   local img="$1"
+
+  # Frontend 使用独立的 Dockerfile
+  if [[ "${img}" == "aiops-frontend" ]]; then
+    local full_image="${REGISTRY}${img}:${TAG}"
+    echo "------------------------------------------"
+    echo "构建 ${full_image} (FRONTEND)"
+    echo "------------------------------------------"
+
+    docker build \
+      --platform "${PLATFORM}" \
+      -t "${full_image}" \
+      ./frontend
+
+    if [[ "${PUSH}" == "true" ]]; then
+      docker push "${full_image}"
+      echo "已推送 ${full_image}"
+    fi
+    return
+  fi
+
   local svc
   svc="$(image_to_service "${img}")"
   if [[ -z "${svc}" ]]; then
@@ -118,5 +140,5 @@ else
 fi
 
 echo ""
-echo "Helm 部署:"
+echo "Helm 部署 (含前端):"
 echo "  helm upgrade --install aiops ./helm -n aiops --create-namespace"

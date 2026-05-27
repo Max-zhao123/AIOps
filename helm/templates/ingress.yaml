@@ -29,13 +29,22 @@ spec:
       http:
         paths:
           {{- range .paths }}
+          {{- $backendSvc := "" }}
+          {{- $backendPort := 0 }}
+          {{- if eq .backend "frontend" }}
+          {{- $backendSvc = $.Values.frontend.name }}
+          {{- $backendPort = $.Values.frontend.port }}
+          {{- else }}
+          {{- $backendSvc = $.Values.microservices.gateway.name }}
+          {{- $backendPort = $.Values.microservices.gateway.port }}
+          {{- end }}
           - path: {{ .path }}
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ $.Values.microservices.gateway.name }}
+                name: {{ $backendSvc }}
                 port:
-                  number: {{ $.Values.microservices.gateway.port }}
+                  number: {{ $backendPort }}
           {{- end }}
     {{- end }}
 {{- end }}

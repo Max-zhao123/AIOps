@@ -17,8 +17,15 @@ ingress:
   hosts:
     - host: aiops.tclpv.com
       paths:
+        - path: /api/
+          pathType: Prefix
+          backend: gateway
+        - path: /admin/
+          pathType: Prefix
+          backend: gateway
         - path: /
           pathType: Prefix
+          backend: frontend
   tls:
     - hosts:
         - aiops.tclpv.com
@@ -120,6 +127,14 @@ config:
     expiresTime: 604800000
     bufferTime: 86400000
     issuer: aiops
+
+# 前端 SPA
+frontend:
+  enabled: true
+  name: aiops-frontend
+  port: 80
+  replicas: 1
+  image: aiops-frontend
 
 migrate:
   enabled: true
