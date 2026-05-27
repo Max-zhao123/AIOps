@@ -9,11 +9,11 @@
 | **① 开发** | 下表 **全部 30 条 REQ** Go 代码 + `go build ./cmd/...` | Dockerfile、`buildall.sh`、`helm/`、跳板机 |
 | **② 联调** | ① 完成后统一部署，**逐条 REQ** 验收 | 未写完代码就上集群 |
 
-| 当前阶段 | **联调中** |
+| 当前阶段 | **已完成 ✅** |
 | 产品 REQ | **30** |
 | 代码完成 | **30 / 30** |
-| 联调 `done` | **0 / 30** |
-| 最后更新 | 2026-05-26 |
+| 联调 `done` | **30 / 30** |
+| 最后更新 | 2026-05-27 |
 
 **本机构建**：`go build ./cmd/...`、`go test ./...` 已通过（含 boundary 单测/bench、executor 源码约束测试）。
 
@@ -34,21 +34,21 @@ D: 051→070→071→081→082→083
 
 | REQ | 名称 | 服务 | 代码 | 状态 | 实现位置（摘要） |
 |-----|------|------|------|------|------------------|
-| 019 | 微服务骨架 | 全部 | 完成 | `pending` | `cmd/*`、`pkg/runtime` |
-| 001 | 环境 | platform | 完成 | `pending` | `GET/POST /api/v1/environments`、seed |
-| 002 | RBAC | gateway+platform | 完成 | `pending` | `pkg/gateway/auth`、login |
-| 003 | 审计 | platform | 完成 | `pending` | `pkg/audit`、`/internal/v1/audit` |
-| 010 | 策略 CRUD | platform | 完成 | `pending` | `pkg/platform/handlers` |
-| 011 | 规则引擎 | policy | 完成 | `pending` | `pkg/boundary`+单测 |
-| 013 | 高危 | policy | 完成 | `pending` | `pkg/boundary/risk` |
-| 012 | 执行网关 | executor | 完成 | `pending` | `pkg/executor`；confirm 二次 evaluate |
-| 020 | mock 插件 | plugin-mock | 完成 | `pending` | `pkg/plugins/mock` |
-| 021 | K8s 插件 | plugin-kubernetes | 完成 | `pending` | client-go；本机可用 `KUBECONFIG`，集群内用 inCluster |
-| 030 | LLM | chat | 完成 | `pending` | `pkg/llm` |
-| 031 | 会话/Plan | chat | 完成 | `pending` | `ParseActionPlans` |
-| 032 | Chat/SSE | chat | 完成 | `pending` | stream 分块 SSE |
-| 033 | ASK | executor | 完成 | `pending` | pending/confirm/409 |
-| 014 | Admin | platform | 完成 | `pending` | `initialize.Admin` |
+| 019 | 微服务骨架 | 全部 | 完成 | `done` | `cmd/*`、`pkg/runtime` |
+| 001 | 环境 | platform | 完成 | `done` | `GET/POST /api/v1/environments`、seed |
+| 002 | RBAC | gateway+platform | 完成 | `done` | `pkg/gateway/auth`、login |
+| 003 | 审计 | platform | 完成 | `done` | `pkg/audit`、`/internal/v1/audit` |
+| 010 | 策略 CRUD | platform | 完成 | `done` | `pkg/platform/handlers` |
+| 011 | 规则引擎 | policy | 完成 | `done` | `pkg/boundary`+单测 |
+| 013 | 高危 | policy | 完成 | `done` | `pkg/boundary/risk` |
+| 012 | 执行网关 | executor | 完成 | `done` | `pkg/executor`；confirm 二次 evaluate |
+| 020 | mock 插件 | plugin-mock | 完成 | `done` | `pkg/plugins/mock` |
+| 021 | K8s 插件 | plugin-kubernetes | 完成 | `done` | client-go；本机可用 `KUBECONFIG`，集群内用 inCluster |
+| 030 | LLM | chat | 完成 | `done` | `pkg/llm` |
+| 031 | 会话/Plan | chat | 完成 | `done` | `ParseActionPlans` |
+| 032 | Chat/SSE | chat | 完成 | `done` | stream 分块 SSE |
+| 033 | ASK | executor | 完成 | `done` | pending/confirm/409 |
+| 014 | Admin | platform | 完成 | `done` | `initialize.Admin` |
 
 ---
 
@@ -56,11 +56,11 @@ D: 051→070→071→081→082→083
 
 | REQ | 名称 | 服务 | 代码 | 状态 | 实现位置（摘要） |
 |-----|------|------|------|------|------------------|
-| 015 | 策略模拟 | platform | 完成 | `pending` | `POST .../simulate` |
-| 022 | Prometheus | plugin-prometheus | 完成 | `pending` | `cmd/plugin-prometheus` |
-| 050 | 数据查询 | platform | 完成 | `pending` | `POST /api/v1/data/query` |
-| 040 | 知识库 | module-kb | 完成 | `pending` | `cmd/module-kb`、`pkg/module/kb` |
-| 041 | RAG | chat | 完成 | `pending` | `useRag` + kb search |
+| 015 | 策略模拟 | platform | 完成 | `done` | `POST .../simulate` |
+| 022 | Prometheus | plugin-prometheus | 完成 | `done` | `cmd/plugin-prometheus` |
+| 050 | 数据查询 | platform | 完成 | `done` | `POST /api/v1/data/query` |
+| 040 | 知识库 | module-kb | 完成 | `done` | `cmd/module-kb`、`pkg/module/kb` |
+| 041 | RAG | chat | 完成 | `done` | `useRag` + kb search |
 
 ---
 
@@ -68,10 +68,10 @@ D: 051→070→071→081→082→083
 
 | REQ | 名称 | 服务 | 代码 | 状态 | 实现位置（摘要） |
 |-----|------|------|------|------|------------------|
-| 060 | Worker | worker | 完成 | `pending` | `cmd/worker`：先 `/process` 再 `/complete` |
-| 061 | 巡检 | platform | 完成 | `pending` | `inspection.go` 经 executor 逐步执行 |
-| 062 | 告警联动 | platform | 完成 | `pending` | 失败写 `notify_records` |
-| 080 | 自愈 | platform+executor | 完成 | `pending` | runbooks execute |
+| 060 | Worker | worker | 完成 | `done` | `cmd/worker`：先 `/process` 再 `/complete` |
+| 061 | 巡检 | platform | 完成 | `done` | `inspection.go` 经 executor 逐步执行 |
+| 062 | 告警联动 | platform | 完成 | `done` | 失败写 `notify_records` |
+| 080 | 自愈 | platform+executor | 完成 | `done` | runbooks execute |
 
 ---
 
@@ -79,12 +79,12 @@ D: 051→070→071→081→082→083
 
 | REQ | 名称 | 服务 | 代码 | 状态 | 实现位置（摘要） |
 |-----|------|------|------|------|------------------|
-| 051 | 日志插件 | plugin-logs | 完成 | `pending` | ES `_search`；未配置返回错误 |
-| 070 | IM | platform | 完成 | `pending` | `/api/v1/im/webhook` |
-| 071 | HelpDesk | platform+kb | 完成 | `pending` | `helpdesk.go`：KB+RAG+LLM |
-| 081 | 高危预警 | platform | 完成 | `pending` | risk-alerts scan/list |
-| 082 | 修复辅助 | chat | 完成 | `pending` | `/api/v1/chat/assist` |
-| 083 | RCA | chat | 完成 | `pending` | `/api/v1/chat/rca` |
+| 051 | 日志插件 | plugin-logs | 完成 | `done` | ES `_search`；未配置返回错误 |
+| 070 | IM | platform | 完成 | `done` | `/api/v1/im/webhook` |
+| 071 | HelpDesk | platform+kb | 完成 | `done` | `helpdesk.go`：KB+RAG+LLM |
+| 081 | 高危预警 | platform | 完成 | `done` | risk-alerts scan/list |
+| 082 | 修复辅助 | chat | 完成 | `done` | `/api/v1/chat/assist` |
+| 083 | RCA | chat | 完成 | `done` | `/api/v1/chat/rca` |
 
 ---
 
@@ -93,11 +93,11 @@ D: 051→070→071→081→082→083
 - [x] 扩展 `buildall.sh` 至 11 个业务镜像
 - [x] Helm `microservices` 启用 B+ Pod（prometheus/logs/kb/worker）
 - [x] DB 服务挂载集群 ConfigMap（gateway/chat/policy/executor/kb）
-- [ ] 跳板机 build + `helm upgrade` + 逐 REQ 验收标 `done`
+- [x] 跳板机 build + `helm upgrade` + 逐 REQ 验收标 `done`
 
 ## 产品 DoD
 
-- [ ] 30 条联调 `done`
+- [x] 30 条联调 `done`
 - [ ] MVP + HelpDesk/巡检/IM 演示
 
 ## 变更记录
