@@ -9,9 +9,10 @@ import (
 	"gorm.io/gorm"
 )
 
-// RegisterTables 阶段 A 控制面表。
+// RegisterTables 阶段 A+E 控制面表。
 func RegisterTables(db *gorm.DB) {
 	err := db.Set("gorm:table_options", "CHARSET=utf8mb4").AutoMigrate(
+		// Phase A
 		model.Environment{},
 		model.User{},
 		model.AuditLog{},
@@ -29,6 +30,19 @@ func RegisterTables(db *gorm.DB) {
 		model.ImMessage{},
 		model.LlmConfig{},
 		auth.BaseUser{},
+		// Phase E
+		model.Schedule{},
+		model.ScheduleExecution{},
+		model.NotificationChannel{},
+		model.NotificationPolicy{},
+		model.NotificationTemplate{},
+		model.Credential{},
+		model.ApprovalPolicy{},
+		model.SlaDefinition{},
+		model.SlaRecord{},
+		model.EnvironmentConfig{},
+		model.ConfigVersion{},
+		model.EnvironmentQuota{},
 	)
 	if err != nil {
 		os.Exit(1)

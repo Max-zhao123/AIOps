@@ -1,11 +1,11 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {
-  Layout, Input, Button, List, Typography, Space, Tag, Avatar, App, Spin, Empty, Divider, Select, Tooltip, Image,
+  Layout, Input, Button, List, Typography, Space, Tag, Avatar, App, Spin, Empty, Divider, Select, Tooltip, Image, Popconfirm,
 } from 'antd'
 import {
   SendOutlined, PlusOutlined, UserOutlined, RobotOutlined,
   StopOutlined, ClearOutlined, PictureOutlined, PaperClipOutlined,
-  CloseCircleOutlined,
+  CloseCircleOutlined, InboxOutlined, DeleteOutlined,
 } from '@ant-design/icons'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
@@ -15,11 +15,11 @@ import EnvironmentSelector from '@/components/EnvironmentSelector'
 import ActionPlanCard from '@/components/ActionPlanCard'
 import StreamingMessage from '@/components/StreamingMessage'
 import {
-  postChat, listSessions, listMessages,
+  postChat, listSessions, listMessages, archiveSession, deleteSession,
 } from '@/api/chat'
 import { confirmAction } from '@/api/executor'
 import { listLlmConfigs } from '@/api/llm'
-import type { ChatMessage, ActionPlan, LlmConfig } from '@/types'
+import type { ChatMessage, ActionPlan, LlmConfig, ChatSession } from '@/types'
 
 const { Sider, Content } = Layout
 const { Text, Title } = Typography
@@ -153,7 +153,6 @@ export default function Chat() {
         onMessage: (data) => {
           try {
             const parsed = JSON.parse(data)
-            // 后端 SSE 格式: {"type": "delta", "content": "xxx"} / {"type": "done"} / {"type": "error", "content": "..."}
             if (parsed.type === 'error') {
               appendToLastAssistant(`\n\n> ⚠️ 错误: ${parsed.content}`)
               setStreaming(false)
@@ -199,6 +198,32 @@ export default function Chat() {
     setInputValue('')
   }
 
+  /** F-048: 归档会话 */
+  const handleArchive = async (sessionId: number) => {
+    try {
+      await archiveSession(sessionId)
+      antMsg.success('已归档')
+      loadSessions()
+    } catch {
+      antMsg.error('归档失败')
+    }
+  }
+
+  /** F-048: 删除会话 */
+  const handleDeleteSession = async (sessionId: number) => {
+    try {
+      await deleteSession(sessionId)
+      antMsg.success('已删除')
+      // 如果当前在删除的会话中，跳转到 /chat
+      if (Number(sessionIdParam) === sessionId) {
+        navigate('/chat')
+      }
+      loadSessions()
+    } catch {
+      antMsg.error('删除失败')
+    }
+  }
+
   // 从消息中提取 ActionPlan
   const extractActionPlans = (msg: ChatMessage): ActionPlan[] => {
     if (msg.action_plans) return msg.action_plans
@@ -206,6 +231,47 @@ export default function Chat() {
   }
 
   const allPlans = messages.flatMap(extractActionPlans)
+
+  // F-048: 分区：活跃会话 + 归档会话
+  const activeSessions = sessions.filter((s) => s.status !== 'archived')
+  const archivedSessions = sessions.filter((s) => s.status === 'archived')
+
+  const renderSessionItem = (s: ChatSession, isArchived: boolean) => (
+    <List.Item
+      style={{
+        padding: '8px 12px',
+        cursor: 'pointer',
+        background: Number(sessionIdParam) === s.id ? '#e6f4ff' : 'transparent',
+      }}
+      onClick={() => navigate(`/chat/sessions/${s.id}`)}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
+        <Text ellipsis style={{ fontSize: 13, flex: 1 }}>{s.title || `会话 #${s.id}`}</Text>
+        <Space size={2}>
+          {!isArchived && (
+            <Tooltip title="归档">
+              <Button
+                type="text"
+                size="small"
+                icon={<InboxOutlined />}
+                style={{ color: '#999' }}
+                onClick={(e) => { e.stopPropagation(); handleArchive(s.id) }}
+              />
+            </Tooltip>
+          )}
+          <Popconfirm title="确定删除此会话？" onConfirm={(e) => { e?.stopPropagation(); handleDeleteSession(s.id) }}>
+            <Button
+              type="text"
+              size="small"
+              icon={<DeleteOutlined />}
+              style={{ color: '#ff4d4f' }}
+              onClick={(e) => e.stopPropagation()}
+            />
+          </Popconfirm>
+        </Space>
+      </div>
+    </List.Item>
+  )
 
   return (
     <Layout style={{ background: '#fff', borderRadius: 8, overflow: 'hidden', height: 'calc(100vh - 112px)' }}>
@@ -226,22 +292,35 @@ export default function Chat() {
         ) : sessions.length === 0 ? (
           <Empty description="暂无会话" image={Empty.PRESENTED_IMAGE_SIMPLE} />
         ) : (
-          <List
-            size="small"
-            dataSource={sessions}
-            renderItem={(s) => (
-              <List.Item
-                style={{
-                  padding: '8px 12px',
-                  cursor: 'pointer',
-                  background: Number(sessionIdParam) === s.id ? '#e6f4ff' : 'transparent',
-                }}
-                onClick={() => navigate(`/chat/sessions/${s.id}`)}
-              >
-                <Text ellipsis style={{ fontSize: 13 }}>{s.title || `会话 #${s.id}`}</Text>
-              </List.Item>
+          <div>
+            {/* 活跃会话分区 */}
+            {activeSessions.length > 0 && (
+              <div>
+                <div style={{ padding: '8px 12px 4px', fontSize: 11, color: '#999', fontWeight: 600 }}>
+                  活跃会话 ({activeSessions.length})
+                </div>
+                <List
+                  size="small"
+                  dataSource={activeSessions}
+                  renderItem={(s) => renderSessionItem(s, false)}
+                />
+              </div>
             )}
-          />
+            {/* 归档会话分区 */}
+            {archivedSessions.length > 0 && (
+              <div>
+                <div style={{ padding: '12px 12px 4px', fontSize: 11, color: '#999', fontWeight: 600, borderTop: '1px solid #f0f0f0' }}>
+                  <InboxOutlined style={{ marginRight: 4 }} />
+                  归档会话 ({archivedSessions.length})
+                </div>
+                <List
+                  size="small"
+                  dataSource={archivedSessions}
+                  renderItem={(s) => renderSessionItem(s, true)}
+                />
+              </div>
+            )}
+          </div>
         )}
       </Sider>
 

@@ -4,13 +4,15 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	aimodel "github.com/lihaiya/aiops/pkg/aiops/model"
 	"github.com/lihaiya/aiops/pkg/aiops/types"
-	"github.com/lihaiya/aiops/utils"
 	"github.com/lihaiya/aiops/pkg/aiops/identity"
 	"github.com/lihaiya/aiops/pkg/boundary"
+	"github.com/lihaiya/aiops/pkg/runtime"
+	"github.com/lihaiya/aiops/utils"
 	"gopkg.in/yaml.v3"
 	"gorm.io/gorm"
 )
@@ -38,31 +40,69 @@ func Register(r *gin.Engine, db *gorm.DB) {
 	r.POST("/internal/v1/audit", h.InternalAudit)
 }
 
+// Login 用户登录（REQ-101 增强版：锁定检查、must_change_password）。
 func (h *Handler) Login(c *gin.Context) {
 	var req struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Username string `json:"username" binding:"required"`
+		Password string `json:"password" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error(), "request_id": runtime.RequestIDFromContext(c)})
 		return
 	}
+
 	var user aimodel.User
 	if err := h.DB.Where("username = ?", req.Username).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "用户名或密码错误", "request_id": runtime.RequestIDFromContext(c)})
 		return
 	}
+
+	// REQ-101: 检查账户锁定
+	if user.LockedUntil != nil && !user.LockedUntil.IsZero() && time.Now().Before(*user.LockedUntil) {
+		c.JSON(http.StatusForbidden, gin.H{"code": 403, "message": "账户已锁定，请稍后再试", "request_id": runtime.RequestIDFromContext(c)})
+		return
+	}
+
+	// 验证密码
 	if !utils.BcryptCheck(req.Password, user.Password) {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		// REQ-101: 增加失败计数
+		newCount := user.FailedLoginCount + 1
+		updates := map[string]interface{}{"failed_login_count": newCount}
+
+		// 超过最大失败次数（5次），锁定账户30分钟
+		if newCount >= 5 {
+			lockUntil := time.Now().Add(30 * time.Minute)
+			updates["locked_until"] = lockUntil
+		}
+		h.DB.Model(&aimodel.User{}).Where("id = ?", user.ID).Updates(updates)
+
+		c.JSON(http.StatusUnauthorized, gin.H{"code": 401, "message": "用户名或密码错误", "request_id": runtime.RequestIDFromContext(c)})
 		return
 	}
+
+	// REQ-101: 重置失败计数
+	h.DB.Model(&aimodel.User{}).Where("id = ?", user.ID).Updates(map[string]interface{}{
+		"failed_login_count": 0,
+		"locked_until":       nil,
+	})
+
+	// 生成 JWT
 	j := utils.NewJWT()
 	token, err := j.CreateToken(j.CreateClaims(utils.BaseClaims{ID: user.ID, Username: user.Username}))
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "token failed"})
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "令牌生成失败", "request_id": runtime.RequestIDFromContext(c)})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"code": 0, "data": gin.H{"token": token, "role": user.Role}})
+
+	// REQ-101: 返回 must_change_password 标记
+	c.JSON(http.StatusOK, gin.H{
+		"code": 0,
+		"data": gin.H{
+			"token":                token,
+			"role":                 user.Role,
+			"must_change_password": user.MustChangePassword,
+		},
+	})
 }
 
 func (h *Handler) ListEnvironments(c *gin.Context) {
@@ -79,12 +119,12 @@ func (h *Handler) ListPolicies(c *gin.Context) {
 
 func (h *Handler) CreatePolicy(c *gin.Context) {
 	var body struct {
-		EnvironmentID int64  `json:"environmentId"`
-		Name          string `json:"name"`
-		SpecYAML      string `json:"specYaml"`
+		EnvironmentID int64  `json:"environmentId" binding:"required"`
+		Name          string `json:"name" binding:"required,max=128"`
+		SpecYAML      string `json:"specYaml" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error(), "request_id": runtime.RequestIDFromContext(c)})
 		return
 	}
 	p := aimodel.SecurityBoundaryPolicy{
@@ -93,14 +133,14 @@ func (h *Handler) CreatePolicy(c *gin.Context) {
 		SpecYAML:      body.SpecYAML,
 	}
 	h.DB.Create(&p)
-	c.JSON(http.StatusOK, gin.H{"code": 0, "data": p})
+	c.JSON(http.StatusCreated, gin.H{"code": 0, "data": p})
 }
 
 func (h *Handler) GetPolicy(c *gin.Context) {
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 	var p aimodel.SecurityBoundaryPolicy
 	if err := h.DB.First(&p, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "策略不存在", "request_id": runtime.RequestIDFromContext(c)})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": p})
@@ -110,12 +150,12 @@ func (h *Handler) UpdatePolicy(c *gin.Context) {
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 	var p aimodel.SecurityBoundaryPolicy
 	if err := h.DB.First(&p, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "策略不存在", "request_id": runtime.RequestIDFromContext(c)})
 		return
 	}
 	var body struct {
 		SpecYAML string `json:"specYaml"`
-		Name     string `json:"name"`
+		Name     string `json:"name" binding:"max=128"`
 	}
 	_ = c.ShouldBindJSON(&body)
 	if body.SpecYAML != "" {
@@ -132,7 +172,7 @@ func (h *Handler) EnablePolicy(c *gin.Context) {
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 	var p aimodel.SecurityBoundaryPolicy
 	if err := h.DB.First(&p, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "策略不存在", "request_id": runtime.RequestIDFromContext(c)})
 		return
 	}
 	h.DB.Model(&aimodel.SecurityBoundaryPolicy{}).
@@ -172,7 +212,7 @@ rules:
     match: { actions: ["delete","apply","patch","create"] }
     decision: ASK`
 	default:
-		c.JSON(http.StatusBadRequest, gin.H{"error": "unknown template"})
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": "未知模板名称", "request_id": runtime.RequestIDFromContext(c)})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": gin.H{"specYaml": spec}})
@@ -200,7 +240,7 @@ func (h *Handler) ListAudit(c *gin.Context) {
 func (h *Handler) InternalAudit(c *gin.Context) {
 	var req types.AuditRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		c.JSON(http.StatusBadRequest, gin.H{"code": 400, "message": err.Error(), "request_id": runtime.RequestIDFromContext(c)})
 		return
 	}
 	raw, _ := json.Marshal(req.Payload)
@@ -217,7 +257,7 @@ func (h *Handler) InternalAudit(c *gin.Context) {
 		log.UserID = identity.UserID(c)
 	}
 	if err := h.DB.Create(&log).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "audit failed"})
+		c.JSON(http.StatusInternalServerError, gin.H{"code": 500, "message": "审计写入失败", "request_id": runtime.RequestIDFromContext(c)})
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"ok": true})

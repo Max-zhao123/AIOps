@@ -50,6 +50,96 @@ func RegisterExtra(r *gin.Engine, db *gorm.DB) {
 	api.DELETE("/llm/config/:id", h.DeleteLlmConfig)
 }
 
+// RegisterExtraE 阶段 E API（REQ-090~103）。
+func RegisterExtraE(r *gin.Engine, db *gorm.DB) {
+	h := &Handler{DB: db}
+	api := r.Group("/api/v1")
+	{
+		// REQ-090: 定时调度
+		api.GET("/schedules", h.ListSchedules)
+		api.POST("/schedules", h.CreateSchedule)
+		api.GET("/schedules/:id", h.GetSchedule)
+		api.PUT("/schedules/:id", h.UpdateSchedule)
+		api.DELETE("/schedules/:id", h.DeleteSchedule)
+		api.GET("/schedules/:id/executions", h.ListScheduleExecutions)
+		api.PATCH("/schedules/:id/toggle", h.ToggleSchedule)
+		api.POST("/schedules/:id/trigger", h.TriggerSchedule)
+
+		// REQ-091: 告警通知通道
+		api.POST("/notification-channels", h.CreateNotificationChannel)
+		api.GET("/notification-channels", h.ListNotificationChannels)
+		api.PUT("/notification-channels/:id", h.UpdateNotificationChannel)
+		api.DELETE("/notification-channels/:id", h.DeleteNotificationChannel)
+		api.POST("/notification-channels/:id/test", h.TestNotificationChannel)
+
+		// REQ-091: 通知策略
+		api.POST("/notification-policies", h.CreateNotificationPolicy)
+		api.GET("/notification-policies", h.ListNotificationPolicies)
+		api.PUT("/notification-policies/:id", h.UpdateNotificationPolicy)
+		api.DELETE("/notification-policies/:id", h.DeleteNotificationPolicy)
+
+		// REQ-091: 通知模板
+		api.GET("/notification-templates", h.ListNotificationTemplates)
+		api.POST("/notification-templates", h.CreateNotificationTemplate)
+		api.PUT("/notification-templates/:id", h.UpdateNotificationTemplate)
+		api.DELETE("/notification-templates/:id", h.DeleteNotificationTemplate)
+
+		// REQ-093: 凭证管理
+		api.GET("/credentials", h.ListCredentials)
+		api.POST("/credentials", h.CreateCredential)
+		api.GET("/credentials/:id", h.GetCredential)
+		api.PUT("/credentials/:id", h.UpdateCredential)
+		api.DELETE("/credentials/:id", h.DeleteCredential)
+		api.POST("/credentials/:id/rotate", h.RotateCredential)
+		api.POST("/credentials/re-encrypt", h.ReEncryptCredentials)
+
+		// REQ-094: 审批策略（通过安全边界配置管理）
+		// 审批策略由 approval_policies 表独立管理
+		api.GET("/approval-policies", h.ListApprovalPolicies)
+		api.POST("/approval-policies", h.CreateApprovalPolicy)
+		api.PUT("/approval-policies/:id", h.UpdateApprovalPolicy)
+
+		// REQ-096: SLA
+		api.POST("/sla-definitions", h.CreateSlaDefinition)
+		api.GET("/sla-definitions", h.ListSlaDefinitions)
+		api.PUT("/sla-definitions/:id", h.UpdateSlaDefinition)
+		api.DELETE("/sla-definitions/:id", h.DeleteSlaDefinition)
+		api.GET("/sla/stats", h.GetSlaStats)
+
+		// REQ-097/099: 环境配置
+		api.POST("/environments/:slug/config", h.CreateEnvironmentConfig)
+		api.GET("/environments/:slug/configs", h.ListEnvironmentConfigs)
+		api.GET("/environments/:slug/config/:key", h.GetEnvironmentConfig)
+		api.DELETE("/environments/:slug/config/:key", h.DeleteEnvironmentConfig)
+
+		// REQ-098: 审计导出
+		api.GET("/audit/export", h.ExportAudit)
+		api.GET("/audit/report", h.GetAuditReport)
+
+		// REQ-100: 会话管理
+		api.POST("/chat/sessions/:id/archive", h.ArchiveChatSession)
+		api.DELETE("/chat/sessions/:id", h.DeleteChatSession)
+
+		// REQ-101: 用户改密
+		api.PUT("/users/:id/password", h.ChangePassword)
+
+		// REQ-103: 环境配额
+		api.GET("/environments/:slug/quotas", h.GetEnvironmentQuotas)
+		api.PUT("/environments/:slug/quotas", h.UpdateEnvironmentQuotas)
+	}
+
+	// 内部 API（集群内调用）
+	internal := r.Group("/internal/v1")
+	{
+		// REQ-093: 内部凭证解密
+		internal.GET("/credentials/:id/value", h.GetCredentialValue)
+
+		// REQ-097/099: 内部配置查询
+		internal.GET("/config/:environment/:key", h.InternalGetConfig)
+		internal.GET("/config/version", h.GetConfigVersion)
+	}
+}
+
 func (h *Handler) CreateEnvironment(c *gin.Context) {
 	var body struct {
 		Slug, Name, Description string
@@ -325,3 +415,4 @@ func (h *Handler) CreateRunbook(c *gin.Context) {
 func (h *Handler) NotifyFailure(env, msg string) {
 	h.DB.Create(&aimodel.NotifyRecord{Source: "inspection", Environment: env, Level: "error", Message: msg})
 }
+

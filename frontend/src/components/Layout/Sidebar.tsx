@@ -17,6 +17,12 @@ import {
   DoubleLeftOutlined,
   DoubleRightOutlined,
   SettingOutlined,
+  ScheduleOutlined,
+  BellOutlined,
+  KeyOutlined,
+  MonitorOutlined,
+  FundOutlined,
+  LockOutlined,
 } from '@ant-design/icons'
 import { useNavigate, useLocation } from 'react-router-dom'
 import type { MenuProps } from 'antd'
@@ -49,6 +55,19 @@ const kbItems: MenuItem[] = [
   { key: '/knowledge', icon: <BookOutlined />, label: '知识库' },
   { key: '/helpdesk', icon: <CustomerServiceOutlined />, label: 'HelpDesk' },
   { key: '/llm-config', icon: <SettingOutlined />, label: 'LLM 配置' },
+]
+
+// Phase E 新增菜单项
+const opsExtItems: MenuItem[] = [
+  { key: '/schedules', icon: <ScheduleOutlined />, label: '运维调度' },
+  { key: '/notifications', icon: <BellOutlined />, label: '通知管理' },
+  { key: '/credentials', icon: <KeyOutlined />, label: '凭证管理' },
+  { key: '/sla', icon: <FundOutlined />, label: 'SLA 仪表盘' },
+  { key: '/monitoring', icon: <MonitorOutlined />, label: '系统监控' },
+]
+
+const userItems: MenuItem[] = [
+  { key: '/change-password', icon: <LockOutlined />, label: '修改密码' },
 ]
 
 function Group({
@@ -220,6 +239,16 @@ export default function Sidebar() {
               inlineCollapsed={collapsed}
             />
           </Group>
+          <Group title="运维扩展" collapsed={collapsed}>
+            <Menu
+              mode="inline"
+              selectedKeys={[selectedKey]}
+              items={opsExtItems}
+              onClick={({ key }) => navigate(key)}
+              style={menuStyle}
+              inlineCollapsed={collapsed}
+            />
+          </Group>
           <Group title="安全" collapsed={collapsed}>
             <Menu
               mode="inline"
@@ -235,6 +264,16 @@ export default function Sidebar() {
               mode="inline"
               selectedKeys={[selectedKey]}
               items={kbItems}
+              onClick={({ key }) => navigate(key)}
+              style={menuStyle}
+              inlineCollapsed={collapsed}
+            />
+          </Group>
+          <Group title="个人" collapsed={collapsed}>
+            <Menu
+              mode="inline"
+              selectedKeys={[selectedKey]}
+              items={userItems}
               onClick={({ key }) => navigate(key)}
               style={menuStyle}
               inlineCollapsed={collapsed}

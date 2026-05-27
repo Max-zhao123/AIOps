@@ -3,6 +3,7 @@ export interface User {
   id: number
   username: string
   role: 'admin' | 'operator' | 'readonly' | 'auditor'
+  password_expired?: boolean
 }
 
 export interface LoginRequest {
@@ -13,6 +14,11 @@ export interface LoginRequest {
 export interface LoginResponse {
   token: string
   user: User
+}
+
+export interface ChangePasswordRequest {
+  oldPassword: string
+  newPassword: string
 }
 
 // ============ 环境 ============
@@ -81,15 +87,37 @@ export interface ExecutionRecord {
   action: string
   planJson: string
   decision: string
-  status: 'pending' | 'running' | 'succeeded' | 'failed' | 'rejected'
+  status: 'pending' | 'running' | 'succeeded' | 'failed' | 'rejected' | 'rolled_back' | 'rolling_back'
   resultJson?: string
   environment: string
   createdAt: string
+  approvers?: Approver[]
+  approval_timeout_at?: string
+  rollback_available?: boolean
+  rollback_from?: number
 }
 
 export interface ConfirmRequest {
   executionId: number
   approved: boolean
+}
+
+export interface RollbackRequest {
+  reason?: string
+}
+
+export interface RollbackResponse {
+  rollback_execution_id: number
+  status: string
+}
+
+// ============ 审批 ============
+export interface Approver {
+  user_id: string
+  username: string
+  role: string
+  approved_at?: string
+  status: 'pending' | 'approved' | 'rejected'
 }
 
 // ============ 审计 ============
@@ -104,6 +132,14 @@ export interface AuditLog {
   environment: string
   result: string
   created_at: string
+}
+
+export interface ComplianceReport {
+  period: string
+  total_events: number
+  by_action: Record<string, number>
+  by_result: Record<string, number>
+  by_environment: Record<string, number>
 }
 
 // ============ 插件 ============
@@ -216,6 +252,7 @@ export interface ChatSession {
   environment: string
   created_at: string
   updated_at: string
+  status?: 'active' | 'archived'
 }
 
 export interface ChatMessage {
@@ -237,11 +274,161 @@ export interface IMWebhookRequest {
   text: string
 }
 
-// ============ 通用 ============
-export interface ApiResponse<T = unknown> {
-  code: number
-  message: string
-  data: T
+// ============ 定时调度 ============
+export interface Schedule {
+  id: number
+  name: string
+  cron: string
+  timezone: string
+  target_type: string
+  target_id: number
+  enabled: boolean
+  last_run_at?: string
+  next_run_at?: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface ScheduleExecution {
+  id: number
+  schedule_id: number
+  status: 'success' | 'failed' | 'running'
+  started_at: string
+  completed_at?: string
+  result_summary?: string
+  error_message?: string
+}
+
+export interface CreateScheduleRequest {
+  name: string
+  cron: string
+  timezone?: string
+  target_type: string
+  target_id: number
+  enabled?: boolean
+}
+
+// ============ 通知通道 ============
+export interface NotificationChannel {
+  id: number
+  name: string
+  type: 'email' | 'webhook' | 'sms'
+  config: Record<string, unknown>
+  enabled: boolean
+  created_at?: string
+  updated_at?: string
+}
+
+export interface NotificationPolicy {
+  id: number
+  name: string
+  channel_ids: string
+  severity: string
+  silence_window_min: number
+  suppress_lower_severity: boolean
+  enabled: boolean
+  created_at?: string
+}
+
+export interface NotificationTemplate {
+  id: number
+  name: string
+  channel_type: 'email' | 'webhook' | 'sms'
+  subject?: string
+  body: string
+  created_at?: string
+}
+
+export interface TestNotificationRequest {
+  recipient?: string
+  message?: string
+}
+
+// ============ 凭证管理 ============
+export interface Credential {
+  id: number
+  name: string
+  type: 'smtp' | 'api_key' | 'database' | 'kubeconfig' | 'other'
+  value: string
+  expires_at?: string
+  last_rotated_at?: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface CreateCredentialRequest {
+  name: string
+  type: 'smtp' | 'api_key' | 'database' | 'kubeconfig' | 'other'
+  value: string
+  expires_at?: string
+}
+
+export interface RotateCredentialRequest {
+  new_value: string
+  expires_at?: string
+}
+
+// ============ SLA ============
+export interface SLADefinition {
+  id: number
+  name: string
+  severity: string
+  response_time_min: number
+  resolution_time_min: number
+  escalation_channel_id: number
+  created_at?: string
+  updated_at?: string
+}
+
+export interface SLASeverityStats {
+  total: number
+  response_sla_met: number
+  resolution_sla_met: number
+  avg_mttr_min: number
+}
+
+export interface SLAStats {
+  period: string
+  environment: string
+  severity_stats: Record<string, SLASeverityStats>
+  overall_mttr_min: number
+  overall_sla_rate: number
+}
+
+export interface CreateSLARequest {
+  name: string
+  severity: string
+  response_time_min: number
+  resolution_time_min: number
+  escalation_channel_id?: number
+}
+
+// ============ 环境配置 ============
+export interface EnvironmentConfig {
+  environment_slug: string
+  key: string
+  value: string
+  override_type: string
+  created_at?: string
+  updated_at?: string
+}
+
+export interface UpsertEnvironmentConfigRequest {
+  key: string
+  value: string
+  override_type?: string
+}
+
+// ============ 环境配额 ============
+export interface QuotaItem {
+  daily_limit: number
+  current_count: number
+  reset_at: string
+}
+
+export interface EnvironmentQuota {
+  environment: string
+  quotas: Record<string, QuotaItem>
 }
 
 // ============ LLM 配置 ============
@@ -253,4 +440,11 @@ export interface LlmConfig {
   model: string
   active: boolean
   createdAt: string
+}
+
+// ============ 通用 ============
+export interface ApiResponse<T = unknown> {
+  code: number
+  message: string
+  data: T
 }

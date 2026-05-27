@@ -1,17 +1,18 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Table, Button, App, Typography, Tag, Space, Popconfirm } from 'antd'
-import { PlayCircleOutlined, EyeOutlined } from '@ant-design/icons'
+import { PlayCircleOutlined } from '@ant-design/icons'
 import { listPending, confirmAction } from '@/api/executor'
 import type { ExecutionRecord } from '@/types'
-import { useNavigate } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
+import ApprovalStatus from '@/components/ApprovalStatus'
+import RollbackButton from '@/components/RollbackButton'
 
 const { Title } = Typography
 
+/** F-043 + F-044: 审批流改造 + 回滚操作 */
 export default function Actions() {
   const [records, setRecords] = useState<ExecutionRecord[]>([])
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate()
   const { message } = App.useApp()
   const hasRole = useAuthStore((s) => s.hasRole)
 
@@ -89,19 +90,57 @@ export default function Actions() {
             ),
           },
           {
+            title: '审批状态',
+            key: 'approval_status',
+            width: 180,
+            render: (_: unknown, r: ExecutionRecord) => {
+              if (!r.approvers || r.approvers.length === 0) return '-'
+              return (
+                <ApprovalStatus
+                  approvers={r.approvers}
+                  timeoutAt={r.approval_timeout_at}
+                />
+              )
+            },
+          },
+          {
+            title: '状态',
+            dataIndex: 'status',
+            key: 'status',
+            width: 100,
+            render: (v: string) => {
+              const statusMap: Record<string, { color: string; label: string }> = {
+                pending: { color: 'default', label: '待审批' },
+                running: { color: 'processing', label: '执行中' },
+                succeeded: { color: 'success', label: '成功' },
+                failed: { color: 'error', label: '失败' },
+                rejected: { color: 'warning', label: '已拒绝' },
+                rolled_back: { color: 'purple', label: '已回滚' },
+                rolling_back: { color: 'purple', label: '回滚中' },
+              }
+              const cfg = statusMap[v] || { color: 'default', label: v }
+              return <Tag color={cfg.color}>{cfg.label}</Tag>
+            },
+          },
+          {
             title: '操作',
             key: 'actions',
-            width: 200,
+            width: 260,
             render: (_: unknown, r: ExecutionRecord) => {
               if (readonly) return <Tag>无权限</Tag>
               return (
-                <Space>
-                  <Popconfirm title="确认执行？" onConfirm={() => handleConfirm(r.id, true)}>
-                    <Button type="primary" size="small">确认执行</Button>
-                  </Popconfirm>
-                  <Popconfirm title="确认拒绝？" onConfirm={() => handleConfirm(r.id, false)}>
-                    <Button danger size="small">拒绝</Button>
-                  </Popconfirm>
+                <Space wrap>
+                  {(r.status === 'pending' || !r.status) && (
+                    <>
+                      <Popconfirm title="确认执行？" onConfirm={() => handleConfirm(r.id, true)}>
+                        <Button type="primary" size="small">确认执行</Button>
+                      </Popconfirm>
+                      <Popconfirm title="确认拒绝？" onConfirm={() => handleConfirm(r.id, false)}>
+                        <Button danger size="small">拒绝</Button>
+                      </Popconfirm>
+                    </>
+                  )}
+                  <RollbackButton record={r} onSuccess={load} />
                 </Space>
               )
             },

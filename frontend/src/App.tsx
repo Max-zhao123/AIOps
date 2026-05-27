@@ -22,6 +22,13 @@ const Runbooks = lazy(() => import('@/pages/Runbooks'))
 const Actions = lazy(() => import('@/pages/Actions'))
 const HelpDesk = lazy(() => import('@/pages/HelpDesk'))
 const LlmConfig = lazy(() => import('@/pages/LlmConfig'))
+// Phase E 新增页面
+const Schedules = lazy(() => import('@/pages/Schedules'))
+const Notifications = lazy(() => import('@/pages/Notifications'))
+const Credentials = lazy(() => import('@/pages/Credentials'))
+const SLA = lazy(() => import('@/pages/SLA'))
+const Monitoring = lazy(() => import('@/pages/Monitoring'))
+const ChangePassword = lazy(() => import('@/pages/ChangePassword'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
 
 const PageLoader = () => (
@@ -60,6 +67,13 @@ function App() {
             <Route path="/actions" element={<Actions />} />
             <Route path="/helpdesk" element={<HelpDesk />} />
             <Route path="/llm-config" element={<LlmConfig />} />
+            {/* Phase E 新增路由 */}
+            <Route path="/schedules" element={<Schedules />} />
+            <Route path="/notifications" element={<Notifications />} />
+            <Route path="/credentials" element={<Credentials />} />
+            <Route path="/sla" element={<SLA />} />
+            <Route path="/monitoring" element={<Monitoring />} />
+            <Route path="/change-password" element={<ChangePassword />} />
           </Route>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<NotFound />} />

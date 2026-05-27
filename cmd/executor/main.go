@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/lihaiya/aiops/config"
 	"github.com/lihaiya/aiops/pkg/aiops/bootstrap"
+	"github.com/lihaiya/aiops/pkg/aiops/metrics"
 	"github.com/lihaiya/aiops/pkg/executor"
 	"github.com/lihaiya/aiops/pkg/runtime"
 )
@@ -15,5 +16,7 @@ func main() {
 	bootstrap.MustInit()
 	runtime.Run("executor", 8084, func(r *gin.Engine) {
 		executor.Register(r, config.GVA_DB)
+		// Prometheus 指标端点（REQ-102）
+		metrics.RegisterMetricsEndpoint(r)
 	})
 }
