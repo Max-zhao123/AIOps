@@ -58,6 +58,35 @@ func (h *Handler) CreateEnvironment(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"code": 0, "data": e})
 }
 
+func (h *Handler) UpdateEnvironment(c *gin.Context) {
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	var body struct {
+		Name, Description string
+	}
+	if err := c.ShouldBindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	var e aimodel.Environment
+	if err := h.DB.First(&e, id).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "not found"})
+		return
+	}
+	if body.Name != "" { e.Name = body.Name }
+	if body.Description != "" { e.Description = body.Description }
+	h.DB.Save(&e)
+	c.JSON(http.StatusOK, gin.H{"code": 0, "data": e})
+}
+
+func (h *Handler) DeleteEnvironment(c *gin.Context) {
+	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
+	if err := h.DB.Delete(&aimodel.Environment{}, id).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"code": 0})
+}
+
 func (h *Handler) SimulatePolicy(c *gin.Context) {
 	id, _ := strconv.ParseInt(c.Param("id"), 10, 64)
 	var p aimodel.SecurityBoundaryPolicy

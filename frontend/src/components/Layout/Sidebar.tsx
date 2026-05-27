@@ -92,26 +92,38 @@ export default function Sidebar() {
   }
 
   const menuItemStyle = `
+    .custom-sider .ant-menu {
+      color: rgba(255,255,255,0.65) !important;
+    }
     .custom-sider .ant-menu-item {
       border-radius: 8px;
       margin: 2px 12px !important;
       padding: 0 14px !important;
       width: calc(100% - 24px) !important;
       font-size: 14px;
+      font-weight: 500;
       height: 42px;
       line-height: 42px;
+      color: rgba(255,255,255,0.65) !important;
     }
     .custom-sider .ant-menu-item .anticon {
       font-size: 18px;
+      color: rgba(255,255,255,0.5) !important;
     }
     .custom-sider .ant-menu-item-selected {
       background: rgba(59, 130, 246, 0.15) !important;
-      color: #60a5fa !important;
+      color: #ffffff !important;
       box-shadow: inset 3px 0 0 #3b82f6;
     }
+    .custom-sider .ant-menu-item-selected .anticon {
+      color: #60a5fa !important;
+    }
     .custom-sider .ant-menu-item:not(.ant-menu-item-selected):hover {
-      background: rgba(255,255,255,0.06) !important;
-      color: rgba(255,255,255,0.9) !important;
+      background: rgba(255,255,255,0.08) !important;
+      color: #ffffff !important;
+    }
+    .custom-sider .ant-menu-item:not(.ant-menu-item-selected):hover .anticon {
+      color: rgba(255,255,255,0.75) !important;
     }
     .custom-sider .ant-menu-item::after {
       display: none;
