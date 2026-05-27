@@ -13,6 +13,9 @@ import (
 	"gorm.io/gorm/schema"
 )
 
+const maxDBRetries = 12
+const dbRetryInterval = 5 * time.Second
+
 type writer struct {
 	logger.Writer
 }
@@ -96,12 +99,18 @@ func GormMysql() *gorm.DB {
 		DefaultStringSize:         191,     // string 类型字段的默认长度
 		SkipInitializeWithVersion: false,   // 根据版本自动配置
 	}
-	if db, err := gorm.Open(mysql.New(mysqlConfig), orm.Config(m.Prefix, m.Singular)); err != nil {
-		return nil
-	} else {
-		sqlDB, _ := db.DB()
-		sqlDB.SetMaxIdleConns(m.MaxIdleConns)
-		sqlDB.SetMaxOpenConns(m.MaxOpenConns)
-		return db
+
+	for i := 0; i < maxDBRetries; i++ {
+		db, err := gorm.Open(mysql.New(mysqlConfig), orm.Config(m.Prefix, m.Singular))
+		if err == nil {
+			sqlDB, _ := db.DB()
+			sqlDB.SetMaxIdleConns(m.MaxIdleConns)
+			sqlDB.SetMaxOpenConns(m.MaxOpenConns)
+			return db
+		}
+		fmt.Printf("DB connection attempt %d/%d failed: %v, retrying in %v...\n", i+1, maxDBRetries, err, dbRetryInterval)
+		time.Sleep(dbRetryInterval)
 	}
+	fmt.Println("DB connection failed after all retries")
+	return nil
 }
