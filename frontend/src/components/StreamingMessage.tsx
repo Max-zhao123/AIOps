@@ -37,7 +37,7 @@ export default function StreamingMessage({ content, isStreaming }: Props) {
             )
           },
         }}
-      />
+      >{content}</ReactMarkdown>
       {isStreaming && <span className="streaming-cursor" />}
     </div>
   )
