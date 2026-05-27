@@ -35,6 +35,7 @@ func registerGateway(r *gin.Engine) {
 	runtime.MountReverseProxy(r, "/api/v1/im", platform)
 	runtime.MountReverseProxy(r, "/api/v1/helpdesk", platform)
 	runtime.MountReverseProxy(r, "/api/v1/runbooks", platform)
+	runtime.MountReverseProxy(r, "/api/v1/llm", platform)
 	runtime.MountReverseProxy(r, "/api/v1/kb", runtime.EnvOr("AIOPS_MODULE_KB_URL", "http://aiops-module-kb:8085"))
 	runtime.MountReverseProxy(r, "/admin", platform)
 }

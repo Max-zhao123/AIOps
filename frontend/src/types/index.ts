@@ -243,3 +243,14 @@ export interface ApiResponse<T = unknown> {
   message: string
   data: T
 }
+
+// ============ LLM 配置 ============
+export interface LlmConfig {
+  id: number
+  name: string
+  baseUrl: string
+  apiKey: string
+  model: string
+  active: boolean
+  createdAt: string
+}

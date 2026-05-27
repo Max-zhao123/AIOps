@@ -16,6 +16,7 @@ import {
   CustomerServiceOutlined,
   DoubleLeftOutlined,
   DoubleRightOutlined,
+  SettingOutlined,
 } from '@ant-design/icons'
 import { useNavigate, useLocation } from 'react-router-dom'
 import type { MenuProps } from 'antd'
@@ -47,6 +48,7 @@ const secItems: MenuItem[] = [
 const kbItems: MenuItem[] = [
   { key: '/knowledge', icon: <BookOutlined />, label: '知识库' },
   { key: '/helpdesk', icon: <CustomerServiceOutlined />, label: 'HelpDesk' },
+  { key: '/llm-config', icon: <SettingOutlined />, label: 'LLM 配置' },
 ]
 
 function Group({

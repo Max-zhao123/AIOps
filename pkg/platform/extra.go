@@ -43,6 +43,11 @@ func RegisterExtra(r *gin.Engine, db *gorm.DB) {
 	api.POST("/internal/v1/worker/jobs/:id/complete", h.CompleteWorkerJob)
 
 	api.POST("/runbooks", h.CreateRunbook)
+
+	api.GET("/llm/config", h.ListLlmConfigs)
+	api.POST("/llm/config", h.CreateLlmConfig)
+	api.PUT("/llm/config/:id", h.UpdateLlmConfig)
+	api.DELETE("/llm/config/:id", h.DeleteLlmConfig)
 }
 
 func (h *Handler) CreateEnvironment(c *gin.Context) {

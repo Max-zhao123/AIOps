@@ -27,6 +27,7 @@ func RegisterTables(db *gorm.DB) {
 		model.Runbook{},
 		model.RiskAlert{},
 		model.ImMessage{},
+		model.LlmConfig{},
 		auth.BaseUser{},
 	)
 	if err != nil {

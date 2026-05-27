@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import {
-  Layout, Input, Button, List, Typography, Space, Tag, Avatar, App, Spin, Empty, Divider,
+  Layout, Input, Button, List, Typography, Space, Tag, Avatar, App, Spin, Empty, Divider, Select,
 } from 'antd'
 import {
   SendOutlined, PlusOutlined, UserOutlined, RobotOutlined,
@@ -17,7 +17,8 @@ import {
   postChat, listSessions, listMessages,
 } from '@/api/chat'
 import { confirmAction } from '@/api/executor'
-import type { ChatMessage, ActionPlan } from '@/types'
+import { listLlmConfigs } from '@/api/llm'
+import type { ChatMessage, ActionPlan, LlmConfig } from '@/types'
 
 const { Sider, Content } = Layout
 const { Text, Title } = Typography
@@ -41,6 +42,15 @@ export default function Chat() {
   const [rightTab, setRightTab] = useState<'plans' | 'assist' | 'rca' | null>(null)
   const [assistInput, setAssistInput] = useState('')
   const [rcaInput, setRcaInput] = useState('')
+  const [selectedModel, setSelectedModel] = useState<string>('')
+  const [models, setModels] = useState<LlmConfig[]>([])
+
+  useEffect(() => {
+    listLlmConfigs().then((data) => {
+      const list = Array.isArray(data) ? data : []
+      setModels(list.filter((m) => m.active))
+    }).catch(() => {})
+  }, [])
 
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -108,6 +118,7 @@ export default function Chat() {
     try {
       const baseUrl = `${window.location.origin}/api/v1`
       const params = new URLSearchParams({ environment, message: text })
+      if (selectedModel) params.set('model', selectedModel)
       const url = `${baseUrl}/chat/stream?${params}`
 
       await connect(url, token, {
@@ -307,6 +318,16 @@ export default function Chat() {
               onChange={setEnvironment}
               style={{ width: 160 }}
             />
+            {models.length > 0 && (
+              <Select
+                value={selectedModel || undefined}
+                onChange={setSelectedModel}
+                placeholder="默认模型"
+                style={{ width: 150 }}
+                allowClear
+                options={models.map((m) => ({ label: m.name, value: m.name }))}
+              />
+            )}
             <TextArea
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}

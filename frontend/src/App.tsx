@@ -21,6 +21,7 @@ const RiskAlerts = lazy(() => import('@/pages/RiskAlerts'))
 const Runbooks = lazy(() => import('@/pages/Runbooks'))
 const Actions = lazy(() => import('@/pages/Actions'))
 const HelpDesk = lazy(() => import('@/pages/HelpDesk'))
+const LlmConfig = lazy(() => import('@/pages/LlmConfig'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
 
 const PageLoader = () => (
@@ -58,6 +59,7 @@ function App() {
             <Route path="/runbooks" element={<Runbooks />} />
             <Route path="/actions" element={<Actions />} />
             <Route path="/helpdesk" element={<HelpDesk />} />
+            <Route path="/llm-config" element={<LlmConfig />} />
           </Route>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="*" element={<NotFound />} />

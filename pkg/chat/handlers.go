@@ -49,8 +49,35 @@ func (h *Handler) llmConfigured() bool {
 	return h.LLM != nil && h.LLM.Configured()
 }
 
+// getLlmClient 根据请求中的 model 参数动态选择 LLM 配置。
+// 如果指定了 model 且在 DB 中找到对应配置，使用该配置；否则回退到默认环境变量配置。
+func (h *Handler) getLlmClient(c *gin.Context) (*llm.Client, error) {
+	modelName := c.Query("model")
+	if modelName == "" {
+		var body struct{ Model string `json:"model"` }
+		_ = c.ShouldBindJSON(&body)
+		modelName = body.Model
+	}
+	if modelName != "" {
+		var cfg aimodel.LlmConfig
+		if err := h.DB.Where("name = ? AND active = ?", modelName, true).First(&cfg).Error; err == nil {
+			return llm.New(llm.Config{
+				BaseURL: cfg.BaseURL,
+				APIKey:  cfg.APIKey,
+				Model:   cfg.Model,
+				Timeout: 60e9, // 60s
+			}), nil
+		}
+	}
+	if h.LLM == nil || !h.LLM.Configured() {
+		return nil, fmt.Errorf("llm not configured")
+	}
+	return h.LLM, nil
+}
+
 func (h *Handler) PostChat(c *gin.Context) {
-	if !h.llmConfigured() {
+	client, err := h.getLlmClient(c)
+	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "llm not configured"})
 		return
 	}
@@ -59,6 +86,7 @@ func (h *Handler) PostChat(c *gin.Context) {
 		SessionID   int64  `json:"sessionId"`
 		Message     string `json:"message"`
 		UseRAG      bool   `json:"useRag"`
+		Model       string `json:"model"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -79,7 +107,7 @@ func (h *Handler) PostChat(c *gin.Context) {
 
 	ctx := c.Request.Context()
 	messages := h.buildMessages(ctx, session.ID, body.Message, body.UseRAG, SystemPromptOps)
-	reply, err := h.LLM.ChatCompletion(ctx, messages)
+	reply, err := client.ChatCompletion(ctx, messages)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 		return
@@ -104,7 +132,8 @@ func (h *Handler) PostChat(c *gin.Context) {
 }
 
 func (h *Handler) StreamChat(c *gin.Context) {
-	if !h.llmConfigured() {
+	client, err := h.getLlmClient(c)
+	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "llm not configured"})
 		return
 	}
@@ -122,7 +151,7 @@ func (h *Handler) StreamChat(c *gin.Context) {
 	session, _ := h.ensureSession(c, sessionID, env, msg)
 	h.saveMessage(session.ID, "user", msg, "")
 
-	reply, err := h.LLM.ChatCompletion(c.Request.Context(), h.buildMessages(c.Request.Context(), session.ID, msg, false, SystemPromptOps))
+	reply, err := client.ChatCompletion(c.Request.Context(), h.buildMessages(c.Request.Context(), session.ID, msg, false, SystemPromptOps))
 	if err != nil {
 		fmt.Fprintf(c.Writer, "data: %s\n\n", jsonEscape(`{"error":"`+err.Error()+`"}`))
 		return
@@ -159,7 +188,8 @@ func (h *Handler) PostRCA(c *gin.Context) {
 }
 
 func (h *Handler) postMode(c *gin.Context, system string, useRAG bool) {
-	if !h.llmConfigured() {
+	client, err := h.getLlmClient(c)
+	if err != nil {
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "llm not configured"})
 		return
 	}
@@ -167,6 +197,7 @@ func (h *Handler) postMode(c *gin.Context, system string, useRAG bool) {
 		Environment string `json:"environment"`
 		SessionID   int64  `json:"sessionId"`
 		Message     string `json:"message"`
+		Model       string `json:"model"`
 	}
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -178,7 +209,7 @@ func (h *Handler) postMode(c *gin.Context, system string, useRAG bool) {
 	if v, ok := c.Get("rca_context"); ok {
 		msgs = append(msgs, llm.Message{Role: "user", Content: "审计上下文:\n" + v.(string)})
 	}
-	reply, err := h.LLM.ChatCompletion(c.Request.Context(), msgs)
+	reply, err := client.ChatCompletion(c.Request.Context(), msgs)
 	if err != nil {
 		c.JSON(http.StatusBadGateway, gin.H{"error": err.Error()})
 		return
