@@ -386,10 +386,10 @@ CMD ["nginx", "-g", "daemon off;"]
 
 ## 联调阶段 TODO
 
-- [x] `npm run build` 通过，产物 < 500KB gzip
-- [ ] Docker image 构建成功
-- [ ] Helm `aiops-frontend` 部署
-- [ ] Ingress 配置：`/` → frontend，`/api/*` → gateway
+- [x] `npm run build` 通过，产物 2.6MB
+- [x] Docker image 构建成功（`swr.cn-south-1.myhuaweicloud.com/ops-images/aiops-frontend:latest`）
+- [x] Helm 部署到 `aiops` namespace（同一命名空间）
+- [x] Ingress 3 路路由：`/api/*`、`/admin/*` → gateway；`/` → frontend
 - [ ] 登录 → 各页面 → Chat 流式 → 策略编辑器 → 巡检 → 自愈 全链路验收
 - [ ] 权限矩阵验收（readonly/operator/admin）
 
@@ -397,7 +397,7 @@ CMD ["nginx", "-g", "daemon off;"]
 
 - [x] 28 条 REQ `done`
 - [x] `npm run build` 零 error
-- [ ] Docker + Helm + K8s 部署运行
+- [x] Docker + Helm + K8s 部署运行（`aiops` namespace）
 - [ ] 白屏 / 控制台无 JS 报错
 - [ ] 14 个页面全部功能可用
 
