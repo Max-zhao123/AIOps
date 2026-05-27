@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
@@ -134,9 +135,11 @@ func (h *Handler) PostChat(c *gin.Context) {
 func (h *Handler) StreamChat(c *gin.Context) {
 	client, err := h.getLlmClient(c)
 	if err != nil {
+		log.Printf("[StreamChat] LLM config error: %v", err)
 		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "llm not configured"})
 		return
 	}
+	log.Printf("[StreamChat] model=%s", c.Query("model"))
 	env := c.Query("environment")
 	msg := c.Query("message")
 	if env == "" || msg == "" {
@@ -153,9 +156,11 @@ func (h *Handler) StreamChat(c *gin.Context) {
 
 	reply, err := client.ChatCompletion(c.Request.Context(), h.buildMessages(c.Request.Context(), session.ID, msg, false, SystemPromptOps))
 	if err != nil {
-		fmt.Fprintf(c.Writer, "data: %s\n\n", jsonEscape(`{"error":"`+err.Error()+`"}`))
+		log.Printf("[StreamChat] LLM API error: %v", err)
+		fmt.Fprintf(c.Writer, "data: %s\n\n", jsonEscape(`{"type":"error","content":"`+err.Error()+`"}`))
 		return
 	}
+	log.Printf("[StreamChat] got reply len=%d", len(reply))
 	plans := ParseActionPlans(reply)
 	pj, _ := json.Marshal(plans)
 	h.saveMessage(session.ID, "assistant", reply, string(pj))

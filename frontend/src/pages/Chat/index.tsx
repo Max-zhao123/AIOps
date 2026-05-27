@@ -153,8 +153,11 @@ export default function Chat() {
         onMessage: (data) => {
           try {
             const parsed = JSON.parse(data)
-            // 后端 SSE 格式: {"type": "delta", "content": "xxx"} / {"type": "done"}
-            if (parsed.type === 'delta' && parsed.content) {
+            // 后端 SSE 格式: {"type": "delta", "content": "xxx"} / {"type": "done"} / {"type": "error", "content": "..."}
+            if (parsed.type === 'error') {
+              appendToLastAssistant(`\n\n> ⚠️ 错误: ${parsed.content}`)
+              setStreaming(false)
+            } else if (parsed.type === 'delta' && parsed.content) {
               appendToLastAssistant(parsed.content)
             } else if (parsed.text) {
               appendToLastAssistant(parsed.text)
