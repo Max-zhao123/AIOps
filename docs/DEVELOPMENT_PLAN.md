@@ -1,6 +1,7 @@
-# AIOps 开发计划（AI 执行主文档）
+# AIOps 后端开发计划（AI 执行主文档）
 
-> **AI 实现产品时的第一必读文件。** 逐条实现下表全部 REQ；契约见 [PRD.md](./PRD.md) §3；Pod/端口见 [ARCHITECTURE.md](./ARCHITECTURE.md)。
+> **AI 实现后端时的第一必读文件。** 逐条实现下表全部 REQ；契约见 [PRD.md](./PRD.md) §3；Pod/端口见 [ARCHITECTURE.md](./ARCHITECTURE.md)。
+> **前端开发计划**：参见 [DEVELOPMENT_PLAN_FRONTEND.md](./DEVELOPMENT_PLAN_FRONTEND.md)（28 条 REQ）。
 
 ## 开发节奏（G-006，强制）
 
